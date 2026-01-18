@@ -1,0 +1,7 @@
+{
+  // MCP サーバー一覧を Extensions ビューで探せるようにする
+  "chat.mcp.gallery.enabled": true,
+
+  // MCP 設定変更時にサーバーを自動的に再起動する (Experimental)
+  "chat.mcp.autostart": "newAndOutdated"
+}

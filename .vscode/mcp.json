@@ -1,0 +1,27 @@
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "cloudflareDocs": {
+      "type": "http",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "microsoftLearn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  }
+}

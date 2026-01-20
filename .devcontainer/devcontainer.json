@@ -23,6 +23,13 @@
 				"chat.mcp.autostart": "newAndOutdated"
 			}
 		}
+	},
+
+	"forwardPorts": [5173],
+	"portsAttributes": {
+		"5173": {
+			"label": "Vite dev server"
+		}
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

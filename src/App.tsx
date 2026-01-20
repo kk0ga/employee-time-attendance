@@ -1,4 +1,5 @@
 import './App.css'
+import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
 function App() {
@@ -12,6 +13,10 @@ function App() {
       <h1>hello world</h1>
       <p>
         tanstack query: {nowQuery.isPending ? 'loading...' : nowQuery.data}
+      </p>
+
+      <p>
+        <Link to="/attendance">勤怠一覧へ</Link>
       </p>
     </main>
   )

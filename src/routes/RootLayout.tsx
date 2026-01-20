@@ -8,6 +8,9 @@ export function RootLayout() {
         <Link to="/" activeProps={{ style: { fontWeight: 700 } }}>
           Home
         </Link>
+        <Link to="/attendance" activeProps={{ style: { fontWeight: 700 } }}>
+          勤怠一覧
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 700 } }}>
           About
         </Link>

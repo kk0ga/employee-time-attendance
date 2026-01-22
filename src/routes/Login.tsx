@@ -1,18 +1,24 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   InteractionRequiredAuthError,
   type AuthenticationResult,
 } from '@azure/msal-browser'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { getLoginScopes } from '../auth/msalConfig'
 
 export function Login() {
   const { instance } = useMsal()
   const isAuthenticated = useIsAuthenticated()
   const scopes = useMemo(() => getLoginScopes(), [])
+  const navigate = useNavigate()
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+    void navigate({ to: '/dashboard', replace: true })
+  }, [isAuthenticated, navigate])
 
   const onLogin = async () => {
     setErrorMessage(null)

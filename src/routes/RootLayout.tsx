@@ -13,8 +13,8 @@ export function RootLayout() {
   return (
     <div style={{ padding: 16 }}>
       <nav style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link to="/" activeProps={{ style: { fontWeight: 700 } }}>
-          Home
+        <Link to="/dashboard" activeProps={{ style: { fontWeight: 700 } }}>
+          ダッシュボード
         </Link>
         <Link to="/attendance" activeProps={{ style: { fontWeight: 700 } }}>
           勤怠一覧

@@ -8,6 +8,7 @@ import {
 import App from './App'
 import { Attendance } from './routes/Attendance'
 import { About } from './routes/About'
+import { Dashboard } from './routes/Dashboard'
 import { Login } from './routes/Login'
 import { RootLayout } from './routes/RootLayout'
 import { getSignedInAccount, msalInstance } from './auth/msalInstance'
@@ -32,6 +33,19 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: App,
+  beforeLoad: () => {
+    requireAuth()
+    throw redirect({
+      to: '/dashboard',
+      replace: true,
+    })
+  },
+})
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dashboard',
+  component: Dashboard,
   beforeLoad: requireAuth,
 })
 
@@ -57,6 +71,7 @@ const loginRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  dashboardRoute,
   aboutRoute,
   attendanceRoute,
   loginRoute,

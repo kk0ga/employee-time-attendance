@@ -3,6 +3,7 @@
 ## 開発（devcontainer）
 
 - `npm ci`
+- `.env.example` を参考に `.env` を作成
 - `npm run dev`
 - VS Code Dev Containers利用時は、Portsタブに表示される `5173` の転送先URL（通常は `http://localhost:5173/`）を開いてください。
 

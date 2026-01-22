@@ -3,35 +3,64 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  redirect,
 } from '@tanstack/react-router'
 import App from './App'
 import { Attendance } from './routes/Attendance'
 import { About } from './routes/About'
+import { Login } from './routes/Login'
 import { RootLayout } from './routes/RootLayout'
+import { getSignedInAccount, msalInstance } from './auth/msalInstance'
 
 const rootRoute = createRootRoute({
   component: RootLayout,
 })
 
+function requireAuth() {
+  const account = getSignedInAccount()
+  if (account) {
+    msalInstance.setActiveAccount(account)
+    return
+  }
+
+  throw redirect({
+    to: '/login',
+  })
+}
+
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: App,
+  beforeLoad: requireAuth,
 })
 
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/about',
   component: About,
+  beforeLoad: requireAuth,
 })
 
 const attendanceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/attendance',
   component: Attendance,
+  beforeLoad: requireAuth,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, attendanceRoute])
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: Login,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  aboutRoute,
+  attendanceRoute,
+  loginRoute,
+])
 
 export const router = createRouter({
   routeTree,

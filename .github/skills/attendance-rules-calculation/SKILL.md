@@ -1,6 +1,6 @@
 ---
 name: attendance-rules-calculation
-description: 勤怠の集計ロジック（労働時間、休憩控除、遅刻早退、残業、端数処理）を仕様化し、実装・テスト可能な形に落とす時に使う。
+description: '勤怠の集計ロジック（労働時間、休憩控除、遅刻早退、残業、端数処理）を仕様化し、実装・テスト可能な形に落とす時に使う。キーワード: calculation, rounding, overtime, break, JST'
 license: MIT
 ---
 

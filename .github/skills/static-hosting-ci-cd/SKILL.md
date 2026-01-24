@@ -1,6 +1,6 @@
 ---
 name: static-hosting-ci-cd
-description: CSR前提のフロントを静的ホスティングで配信する。GitHub Pages と Cloudflare Pages の比較、環境変数、ビルド/デプロイ、プレビュー運用を整備する時に使う。
+description: 'CSR前提のフロントを静的ホスティングで配信する。GitHub Pages と Cloudflare Pages の比較、環境変数、ビルド/デプロイ、プレビュー運用を整備する時に使う。キーワード: GitHub Pages, CI/CD, Vite, deploy, preview'
 license: MIT
 ---
 
@@ -31,3 +31,6 @@ license: MIT
 ## 依頼例
 - 「GitHub PagesとCloudflare Pagesのメリデメを、勤怠システム前提で整理して」
 - 「タグで本番リリースするCI/CD案を作って」
+
+## 関連スキル
+- [gh-cli](../gh-cli/SKILL.md)

@@ -1,6 +1,6 @@
 ---
 name: sharepoint-lists-data-layer
-description: SharePoint Lists（Microsoft Lists）を勤怠システムのデータストアとして設計・実装する。リスト設計、列・インデックス、権限、API（Microsoft Graph / SharePoint REST）を扱うタスクで使う。
+description: 'SharePoint Lists（Microsoft Lists）を勤怠システムのデータストアとして設計・実装する。リスト設計、列・インデックス、権限、API（Microsoft Graph / SharePoint REST）を扱うタスクで使う。キーワード: SharePoint Lists, Microsoft Lists, Graph, list schema, columns, index'
 license: MIT
 ---
 
@@ -54,3 +54,7 @@ license: MIT
 - 「打刻データをSharePoint Listsに保存する設計にしたい。列設計と検索性も考えて」
 - 「approval と time_entries の関係をどう持つのが良い？」
 - 「Graphで一覧取得する時のページングと差分取得の方針を決めたい」
+
+## 関連スキル
+- [microsoft-docs](../microsoft-docs/SKILL.md)
+- [graph-api-resilience-privacy](../graph-api-resilience-privacy/SKILL.md)

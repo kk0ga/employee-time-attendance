@@ -1,6 +1,6 @@
 ---
 name: frontend-routing-tanstack-router
-description: TanStack Router を使って画面遷移とデータロードを設計する。認証導線、ルート設計、loader、search params、エラーバウンダリの型を固定する。
+description: 'TanStack Router を使って画面遷移とデータロードを設計する。認証導線、ルート設計、loader、search params、エラーバウンダリの型を固定する。キーワード: TanStack Router, routing, loader, auth, hash routing'
 license: MIT
 ---
 

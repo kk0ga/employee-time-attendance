@@ -1,6 +1,6 @@
 ---
 name: frontend-tanstack-architecture
-description: 勤怠システムのフロントを TanStack（Query/Router/Table）中心に設計・実装するための基本方針。データ取得、ルーティング、テーブル表示、エラーハンドリングの“型”を固定する。
+description: '勤怠システムのフロントを TanStack（Query/Router/Table）中心に設計・実装するための基本方針。データ取得、ルーティング、テーブル表示、エラーハンドリングの“型”を固定する。キーワード: TanStack, React, Query, Router, Table, SPA'
 license: MIT
 ---
 
@@ -29,3 +29,7 @@ license: MIT
 ## 依頼例
 - 「打刻画面を追加したい。TanStack流の構成で最小実装の型を作って」
 - 「time_entries の一覧を Table で作りたい。列定義とフィルタ方針を整理して」
+
+## 関連スキル
+- [web-design-reviewer](../web-design-reviewer/SKILL.md)
+- [refactor](../refactor/SKILL.md)

@@ -1,6 +1,6 @@
 ---
 name: frontend-tables-tanstack-table
-description: TanStack Table で勤怠一覧/勤務表を作る。列定義、ソート/フィルタ、ページング、集計行、アクセシビリティ、CSV出力の型を固定する。
+description: 'TanStack Table で勤怠一覧/勤務表を作る。列定義、ソート/フィルタ、ページング、集計行、アクセシビリティ、CSV出力の型を固定する。キーワード: TanStack Table, table, columns, sorting, filtering, CSV'
 license: MIT
 ---
 

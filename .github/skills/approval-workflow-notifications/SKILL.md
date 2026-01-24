@@ -1,6 +1,6 @@
 ---
 name: approval-workflow-notifications
-description: 勤怠の月次申請・承認（差戻し含む）を設計し、状態遷移、権限、通知（Teams/メール）まで落とす時に使う。
+description: '勤怠の月次申請・承認（差戻し含む）を設計し、状態遷移、権限、通知（Teams/メール）まで落とす時に使う。キーワード: approval workflow, state machine, submitted, approved, rejected'
 license: MIT
 ---
 
@@ -29,3 +29,7 @@ license: MIT
 ## 依頼例
 - 「差戻しコメント付きの承認フローを設計して」
 - 「承認者が不在の時の代行ルールをどうするか整理して」
+
+## 関連スキル
+- [prd](../prd/SKILL.md)
+- [github-issues](../github-issues/SKILL.md)

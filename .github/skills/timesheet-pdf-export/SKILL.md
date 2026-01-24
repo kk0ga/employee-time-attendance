@@ -1,6 +1,6 @@
 ---
 name: timesheet-pdf-export
-description: 一般的な勤務表フォーマットのPDF（縦型・会社ロゴ入り）を生成する。月次の出力要件整理、レイアウト設計、PDF生成実装、検証観点まで扱う。
+description: '一般的な勤務表フォーマットのPDF（縦型・会社ロゴ入り）を生成する。月次の出力要件整理、レイアウト設計、PDF生成実装、検証観点まで扱う。キーワード: PDF, timesheet, logo, A4, export'
 license: MIT
 ---
 
@@ -35,3 +35,6 @@ license: MIT
 ## 依頼例
 - 「勤務表PDFを縦型・ロゴ入りで出したい。項目とレイアウト案を作って」
 - 「CSRでPDF作る場合の実装手順と落とし穴をまとめて」
+
+## 関連スキル
+- [image-manipulation-image-magick](../image-manipulation-image-magick/SKILL.md)

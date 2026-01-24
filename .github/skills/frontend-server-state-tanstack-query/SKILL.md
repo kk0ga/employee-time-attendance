@@ -1,6 +1,6 @@
 ---
 name: frontend-server-state-tanstack-query
-description: TanStack Query を使って勤怠データを扱う。queryKey設計、infinite/pagination、mutation、楽観更新、エラー/リトライ、キャッシュ無効化の運用を固定する。
+description: 'TanStack Query を使って勤怠データを扱う。queryKey設計、infinite/pagination、mutation、楽観更新、エラー/リトライ、キャッシュ無効化の運用を固定する。キーワード: TanStack Query, queryKey, mutation, retry, cache'
 license: MIT
 ---
 

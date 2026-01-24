@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { weekdayJa, weekdayUtc } from '../lib/tokyoDate'
 import { createPunch, listMyPunchesForDate, type PunchType } from '../lib/graph/punches'
+import { GraphRequestError } from '../lib/graph/graphClient'
 
 function getTokyoNowParts(now: Date = new Date()): {
   date: string
@@ -87,17 +88,37 @@ export function Punch() {
     await createPunchMutation.mutateAsync(type)
   }
 
+  const punchesErrorMessage = useMemo(() => {
+    const err = punchesQuery.error
+    if (!err) return null
+    if (err instanceof GraphRequestError) {
+      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
+    }
+    if (err instanceof Error) return err.message
+    return '不明なエラー'
+  }, [punchesQuery.error])
+
+  const createErrorMessage = useMemo(() => {
+    const err = createPunchMutation.error
+    if (!err) return null
+    if (err instanceof GraphRequestError) {
+      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
+    }
+    if (err instanceof Error) return err.message
+    return '不明なエラー'
+  }, [createPunchMutation.error])
+
   return (
     <main className="app">
       <h1>打刻</h1>
       <p style={{ marginTop: 4, opacity: 0.8 }}>※SharePoint リストへ登録します（設定が必要）</p>
 
       {punchesQuery.isError ? (
-        <p style={{ color: '#b00' }}>打刻の読み込みに失敗しました（権限/設定をご確認ください）。</p>
+        <p style={{ color: '#b00' }}>打刻の読み込みに失敗しました: {punchesErrorMessage}</p>
       ) : null}
 
       {createPunchMutation.isError ? (
-        <p style={{ color: '#b00' }}>打刻に失敗しました（ネットワーク/権限/設定をご確認ください）。</p>
+        <p style={{ color: '#b00' }}>打刻に失敗しました: {createErrorMessage}</p>
       ) : null}
 
       <section

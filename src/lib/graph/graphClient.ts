@@ -1,3 +1,4 @@
+import { InteractionRequiredAuthError } from '@azure/msal-browser'
 import { msalInstance, getSignedInAccount } from '../../auth/msalInstance'
 import { getGraphScopes } from './config'
 
@@ -40,12 +41,27 @@ async function getAccessToken(): Promise<string> {
 
   msalInstance.setActiveAccount(account)
 
-  const result = await msalInstance.acquireTokenSilent({
-    account,
-    scopes: getGraphScopes(),
-  })
+  const scopes = getGraphScopes()
 
-  return result.accessToken
+  try {
+    const result = await msalInstance.acquireTokenSilent({
+      account,
+      scopes,
+    })
+
+    return result.accessToken
+  } catch (err) {
+    // 追加スコープの同意が必要など、サイレント取得できない場合は対話にフォールバック
+    if (err instanceof InteractionRequiredAuthError) {
+      await msalInstance.acquireTokenRedirect({
+        account,
+        scopes,
+      })
+      throw new Error('Interactive authentication required')
+    }
+
+    throw err
+  }
 }
 
 export async function graphFetch<T>(

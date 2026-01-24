@@ -22,6 +22,9 @@ export function RootLayout() {
         <Link to="/punch" activeProps={{ style: { fontWeight: 700 } }}>
           打刻
         </Link>
+        <Link to="/settings/sharepoint" activeProps={{ style: { fontWeight: 700 } }}>
+          SharePoint設定
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 700 } }}>
           About
         </Link>

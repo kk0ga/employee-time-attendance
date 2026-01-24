@@ -11,6 +11,7 @@ import { About } from './routes/About'
 import { Dashboard } from './routes/Dashboard'
 import { Login } from './routes/Login'
 import { Punch } from './routes/Punch'
+import { SharePointSetup } from './routes/SharePointSetup'
 import { RootLayout } from './routes/RootLayout'
 import { getSignedInAccount, msalInstance } from './auth/msalInstance'
 
@@ -71,6 +72,13 @@ const punchRoute = createRoute({
   beforeLoad: requireAuth,
 })
 
+const sharePointSetupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings/sharepoint',
+  component: SharePointSetup,
+  beforeLoad: requireAuth,
+})
+
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
@@ -83,6 +91,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   attendanceRoute,
   punchRoute,
+  sharePointSetupRoute,
   loginRoute,
 ])
 

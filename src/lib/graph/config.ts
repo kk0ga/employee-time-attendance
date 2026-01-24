@@ -12,6 +12,10 @@ export function getPunchListId(): string {
   return requiredEnv('VITE_SP_PUNCH_LIST_ID')
 }
 
+export function getAttendanceListId(): string {
+  return requiredEnv('VITE_SP_ATTENDANCE_LIST_ID')
+}
+
 export function getGraphScopes(): string[] {
   const raw = requiredEnv('VITE_GRAPH_SCOPES')
   return raw

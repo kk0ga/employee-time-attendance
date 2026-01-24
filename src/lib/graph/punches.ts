@@ -1,6 +1,7 @@
 import { getSignedInAccount } from '../../auth/msalInstance'
 import { graphFetch } from './graphClient'
 import { getPunchListId, getSharePointSiteId } from './config'
+import { upsertAttendanceFromPunch } from './attendance'
 
 export type PunchType = 'start' | 'end'
 
@@ -73,6 +74,12 @@ export async function createPunch(params: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields }),
+  })
+
+  await upsertAttendanceFromPunch({
+    date: params.date,
+    time: params.time,
+    type: params.type,
   })
 }
 

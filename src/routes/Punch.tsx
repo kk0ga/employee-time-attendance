@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { weekdayJa, weekdayUtc } from '../lib/tokyoDate'
-
-type PunchType = 'start' | 'end'
-
-type PunchRecord = {
-  type: PunchType
-  time: string
-}
+import { createPunch, listMyPunchesForDate, type PunchType } from '../lib/graph/punches'
 
 function getTokyoNowParts(now: Date = new Date()): {
   date: string
@@ -54,8 +49,21 @@ const punchLabel: Record<PunchType, string> = {
 
 export function Punch() {
   const [now, setNow] = useState(() => getTokyoNowParts())
-  const [records, setRecords] = useState<PunchRecord[]>([])
   const [note, setNote] = useState('')
+
+  const queryClient = useQueryClient()
+
+  const punchesQuery = useQuery({
+    queryKey: ['punches', now.date],
+    queryFn: () => listMyPunchesForDate({ date: now.date }),
+  })
+
+  const createPunchMutation = useMutation({
+    mutationFn: (type: PunchType) => createPunch({ type, date: now.date, time: now.time, note }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['punches', now.date] })
+    },
+  })
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -64,34 +72,33 @@ export function Punch() {
     return () => window.clearInterval(id)
   }, [])
 
-  const startRecord = useMemo(
-    () => records.find((record) => record.type === 'start'),
-    [records],
-  )
-  const endRecord = useMemo(
-    () => records.find((record) => record.type === 'end'),
-    [records],
-  )
+  const startRecord = useMemo(() => {
+    return punchesQuery.data?.find((record) => record.type === 'start')
+  }, [punchesQuery.data])
+
+  const endRecord = useMemo(() => {
+    return punchesQuery.data?.find((record) => record.type === 'end')
+  }, [punchesQuery.data])
 
   const canPunchStart = !startRecord
   const canPunchEnd = !!startRecord && !endRecord
 
-  const onPunch = (type: PunchType) => {
-    setRecords((prev) => {
-      if (prev.some((record) => record.type === type)) return prev
-      return [...prev, { type, time: getTokyoNowParts().time }]
-    })
-  }
-
-  const onReset = () => {
-    setRecords([])
-    setNote('')
+  const onPunch = async (type: PunchType) => {
+    await createPunchMutation.mutateAsync(type)
   }
 
   return (
     <main className="app">
       <h1>打刻</h1>
-      <p style={{ marginTop: 4, opacity: 0.8 }}>※モック画面（API連携なし）</p>
+      <p style={{ marginTop: 4, opacity: 0.8 }}>※SharePoint リストへ登録します（設定が必要）</p>
+
+      {punchesQuery.isError ? (
+        <p style={{ color: '#b00' }}>打刻の読み込みに失敗しました（権限/設定をご確認ください）。</p>
+      ) : null}
+
+      {createPunchMutation.isError ? (
+        <p style={{ color: '#b00' }}>打刻に失敗しました（ネットワーク/権限/設定をご確認ください）。</p>
+      ) : null}
 
       <section
         style={{
@@ -118,14 +125,19 @@ export function Punch() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => onPunch('start')} disabled={!canPunchStart}>
+            <button
+              type="button"
+              onClick={() => onPunch('start')}
+              disabled={!canPunchStart || createPunchMutation.isPending}
+            >
               出勤打刻
             </button>
-            <button type="button" onClick={() => onPunch('end')} disabled={!canPunchEnd}>
+            <button
+              type="button"
+              onClick={() => onPunch('end')}
+              disabled={!canPunchEnd || createPunchMutation.isPending}
+            >
               退勤打刻
-            </button>
-            <button type="button" onClick={onReset}>
-              クリア
             </button>
           </div>
 
@@ -144,11 +156,13 @@ export function Punch() {
 
       <section style={{ marginTop: 24 }}>
         <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>打刻履歴</h2>
-        {records.length === 0 ? (
+        {punchesQuery.isPending ? (
+          <p>読み込み中...</p>
+        ) : (punchesQuery.data?.length ?? 0) === 0 ? (
           <p>まだ打刻がありません。</p>
         ) : (
           <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
-            {records.map((record) => (
+            {(punchesQuery.data ?? []).map((record) => (
               <li key={record.type}>
                 {punchLabel[record.type]}: {record.time}
               </li>

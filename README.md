@@ -19,6 +19,7 @@
 - `VITE_GRAPH_SCOPES`（例: `User.Read,Sites.ReadWrite.All`）
 - `VITE_SP_SITE_ID`（Graph の siteId 文字列）
 - `VITE_SP_PUNCH_LIST_ID`（打刻リストの listId GUID）
+- `VITE_SP_ATTENDANCE_LIST_ID`（勤怠一覧リストの listId GUID）
 
 SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
 
@@ -29,9 +30,19 @@ SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
 - `UserObjectId`（1行テキスト）
 - `UserPrincipalName`（1行テキスト）
 
+勤怠一覧の取得に使うリスト（例: `Attendance`）に作る列（推奨）:
+
+- `AttendanceDate`（1行テキスト: `YYYY-MM-DD` を推奨）
+- `StartTime`（1行テキスト: `HH:mm`）
+- `EndTime`（1行テキスト: `HH:mm`）
+- `UserObjectId`（1行テキスト）
+
 動作:
 
-- 打刻画面（`/#/punch`）から `POST /sites/{siteId}/lists/{listId}/items` でリストにアイテムを追加します。
+- 打刻画面（`/#/punch`）で打刻すると、
+  - `Punches` にレコードを追記
+  - `Attendance` の当日レコードを作成/更新
+- 勤怠一覧は `/#/attendance` で `Attendance` リストから取得します。
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

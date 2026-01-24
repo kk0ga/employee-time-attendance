@@ -10,6 +10,7 @@ import { Attendance } from './routes/Attendance'
 import { About } from './routes/About'
 import { Dashboard } from './routes/Dashboard'
 import { Login } from './routes/Login'
+import { Punch } from './routes/Punch'
 import { RootLayout } from './routes/RootLayout'
 import { getSignedInAccount, msalInstance } from './auth/msalInstance'
 
@@ -63,6 +64,13 @@ const attendanceRoute = createRoute({
   beforeLoad: requireAuth,
 })
 
+const punchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/punch',
+  component: Punch,
+  beforeLoad: requireAuth,
+})
+
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
@@ -74,6 +82,7 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   aboutRoute,
   attendanceRoute,
+  punchRoute,
   loginRoute,
 ])
 

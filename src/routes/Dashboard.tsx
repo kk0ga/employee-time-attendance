@@ -139,6 +139,9 @@ export function Dashboard() {
           <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>クイックリンク</h2>
           <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
             <li>
+              <Link to="/punch">打刻へ</Link>
+            </li>
+            <li>
               <Link to="/attendance">勤怠一覧へ</Link>
             </li>
             <li>

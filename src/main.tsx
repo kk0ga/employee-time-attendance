@@ -7,7 +7,14 @@ import './index.css'
 import { router } from './router'
 import { msalInstance } from './auth/msalInstance'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 async function bootstrap() {
   await msalInstance.initialize()

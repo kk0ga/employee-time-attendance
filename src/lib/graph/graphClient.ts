@@ -29,6 +29,11 @@ function isRetryableStatus(status: number): boolean {
   return status === 429 || status === 503
 }
 
+function isLikelyNetworkError(err: unknown): boolean {
+  // fetch() throws TypeError on network/CORS failures
+  return err instanceof TypeError
+}
+
 function backoffMs(attempt: number): number {
   const base = Math.min(8_000, 500 * Math.pow(2, attempt))
   const jitter = Math.floor(Math.random() * 250)
@@ -66,9 +71,10 @@ async function getAccessToken(): Promise<string> {
 
 export async function graphFetch<T>(
   path: string,
-  init: RequestInit & { retry?: number } = {},
+  init: RequestInit & { retry?: number; timeoutMs?: number } = {},
 ): Promise<T> {
   const retry = init.retry ?? 4
+  const timeoutMs = init.timeoutMs ?? 15_000
   const url = path.startsWith('http') ? path : `https://graph.microsoft.com/v1.0${path}`
 
   let lastError: unknown = null
@@ -77,14 +83,18 @@ export async function graphFetch<T>(
     try {
       const token = await getAccessToken()
 
+      const controller = new AbortController()
+      const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
+
       const res = await fetch(url, {
         ...init,
+        signal: init.signal ?? controller.signal,
         headers: {
           ...(init.headers ?? {}),
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
-      })
+      }).finally(() => window.clearTimeout(timeoutId))
 
       if (res.ok) {
         if (res.status === 204) return undefined as T
@@ -109,6 +119,23 @@ export async function graphFetch<T>(
       throw new GraphRequestError(message, res.status, details?.error?.code)
     } catch (err) {
       lastError = err
+
+      // Redirect-based auth should navigate away; don't spin retry loops.
+      if (err instanceof Error && err.message === 'Interactive authentication required') {
+        throw err
+      }
+
+      if (err instanceof GraphRequestError) {
+        if (!isRetryableStatus(err.status) || attempt >= retry) throw err
+        const waitMs = backoffMs(attempt)
+        await sleep(waitMs)
+        continue
+      }
+
+      if (!isLikelyNetworkError(err) || attempt >= retry) {
+        throw err
+      }
+
       if (attempt < retry) {
         await sleep(backoffMs(attempt))
         continue

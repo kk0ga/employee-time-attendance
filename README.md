@@ -20,6 +20,7 @@
 - `VITE_SP_SITE_ID`（Graph の siteId 文字列）
 - `VITE_SP_PUNCH_LIST_ID`（打刻リストの listId GUID）
 - `VITE_SP_ATTENDANCE_LIST_ID`（勤怠一覧リストの listId GUID）
+- `VITE_SP_WORK_RULE_LIST_ID`（勤務ルール（個人設定）リストの listId GUID）
 
 祝日（Google カレンダー）を使う場合（オンデマンド）:
 
@@ -45,6 +46,16 @@ SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
 - `EndTime`（1行テキスト: `HH:mm`）
 - `UserObjectId`（1行テキスト）
 
+勤務ルール（個人設定）に使うリスト（例: `WorkRule`）に作る列（推奨）:
+
+- `UserObjectId`（1行テキスト）
+- `UserPrincipalName`（1行テキスト）
+- `ScheduledDailyMinutes`（数値: 所定労働時間（分））
+- `BreakMinutes`（数値: 休憩（分））
+- `RoundingUnitMinutes`（数値: 丸め単位（分））
+- `RoundStart`（1行テキスト or Choice: none/floor/ceil/nearest）
+- `RoundEnd`（1行テキスト or Choice: none/floor/ceil/nearest）
+
 動作:
 
 - 打刻画面（`/#/punch`）で打刻すると、
@@ -55,6 +66,7 @@ SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
 集計:
 
 - ダッシュボードの「平日」は **土日祝を除外**して集計します（祝日は Google Calendar から当月分をオンデマンド取得）。
+- 労働時間は「勤務ルール（所定/休憩/丸め）」を各個人ごとに適用して算出します。
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -52,7 +52,12 @@ export function SharePointSetup() {
 
   const envSnippet = useMemo(() => {
     if (!selectedSiteId) return ''
-    return `VITE_SP_SITE_ID=${selectedSiteId}\nVITE_SP_PUNCH_LIST_ID=<listId>`
+    return (
+      `VITE_SP_SITE_ID=${selectedSiteId}` +
+      `\nVITE_SP_PUNCH_LIST_ID=<Punches listId>` +
+      `\nVITE_SP_ATTENDANCE_LIST_ID=<Attendance listId>` +
+      `\nVITE_SP_WORK_RULE_LIST_ID=<WorkRule listId>`
+    )
   }, [selectedSiteId])
 
   const resolveErrorMessage = useMemo(() => {

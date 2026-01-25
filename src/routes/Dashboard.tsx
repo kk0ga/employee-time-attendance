@@ -1,9 +1,12 @@
 import { useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { defaultWorkRule } from '../domain/workRule'
 import { fetchAttendanceMonth } from '../lib/attendanceRepo'
 import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
+import { fetchMyWorkRule } from '../lib/workRuleRepo'
+import { calculateWorkedMinutes } from '../lib/workTime'
 
 function getTokyoYyyyMmDd(now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -21,18 +24,19 @@ function getTokyoYyyyMmDd(now: Date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-function toMinutes(hhmm: string): number {
-  const [hh, mm] = hhmm.split(':')
-  const hours = Number(hh)
-  const minutes = Number(mm)
-  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return 0
-  return hours * 60 + minutes
-}
-
 function formatMinutes(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
   return `${hours}h${String(minutes).padStart(2, '0')}m`
+}
+
+function formatRoundingLabel(params: {
+  unit: number
+  start: string
+  end: string
+}): string {
+  if (!params.unit) return 'なし'
+  return `${params.unit}分（開始:${params.start} / 終了:${params.end}）`
 }
 
 export function Dashboard() {
@@ -53,6 +57,12 @@ export function Dashboard() {
     staleTime: 1000 * 60 * 60 * 12,
   })
 
+  const workRuleQuery = useQuery({
+    queryKey: ['work-rule', 'me'],
+    queryFn: () => fetchMyWorkRule(),
+    retry: false,
+  })
+
   const todayAttendance = useMemo(() => {
     return attendanceQuery.data?.days.find((d) => d.date === today)
   }, [attendanceQuery.data, today])
@@ -60,6 +70,7 @@ export function Dashboard() {
   const monthSummary = useMemo(() => {
     const days = attendanceQuery.data?.days ?? []
     const holidays = holidaysQuery.data ?? {}
+    const rule = workRuleQuery.data ?? defaultWorkRule
 
     const isHoliday = (date: string, weekday: number) => {
       if (weekday === 0 || weekday === 6) return true
@@ -75,15 +86,25 @@ export function Dashboard() {
     const holidayAttended = holidayDays.filter((d) => d.start)
 
     const businessMinutes = businessDays.reduce((acc, d) => {
-      if (!d.start || !d.end) return acc
-      const minutes = Math.max(0, toMinutes(d.end) - toMinutes(d.start))
-      return acc + minutes
+      return (
+        acc +
+        calculateWorkedMinutes({
+          start: d.start,
+          end: d.end,
+          rule,
+        })
+      )
     }, 0)
 
     const holidayMinutes = holidayDays.reduce((acc, d) => {
-      if (!d.start || !d.end) return acc
-      const minutes = Math.max(0, toMinutes(d.end) - toMinutes(d.start))
-      return acc + minutes
+      return (
+        acc +
+        calculateWorkedMinutes({
+          start: d.start,
+          end: d.end,
+          rule,
+        })
+      )
     }, 0)
 
     return {
@@ -95,8 +116,13 @@ export function Dashboard() {
       holidayMinutes,
       totalAttendedCount: businessAttended.length + holidayAttended.length,
       totalMinutes: businessMinutes + holidayMinutes,
+      scheduledDailyMinutes: rule.scheduledDailyMinutes,
+      breakMinutes: rule.breakMinutes,
+      roundingUnitMinutes: rule.roundingUnitMinutes,
+      roundStart: rule.roundStart,
+      roundEnd: rule.roundEnd,
     }
-  }, [attendanceQuery.data, holidaysQuery.data])
+  }, [attendanceQuery.data, holidaysQuery.data, workRuleQuery.data])
 
   const lastUpdatedAt = attendanceQuery.dataUpdatedAt
     ? new Date(attendanceQuery.dataUpdatedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
@@ -157,6 +183,22 @@ export function Dashboard() {
               <div>
                 対象: {year}年{month}月
               </div>
+              {workRuleQuery.isError ? (
+                <div style={{ color: '#b00' }}>
+                  勤務ルールの読み込みに失敗しました（デフォルト値で集計）。
+                  SharePoint の `VITE_SP_WORK_RULE_LIST_ID` とリスト列を確認してください。
+                </div>
+              ) : null}
+              <div>
+                勤務ルール: 所定 {formatMinutes(monthSummary.scheduledDailyMinutes)} / 休憩 {monthSummary.breakMinutes}分 / 丸め{' '}
+                {formatRoundingLabel({
+                  unit: monthSummary.roundingUnitMinutes,
+                  start: monthSummary.roundStart,
+                  end: monthSummary.roundEnd,
+                })}
+                （<Link to="/settings/work-rule">変更</Link>）
+              </div>
+              <div>法定休日: 日曜日（固定）</div>
               {holidaysQuery.isError ? (
                 <div style={{ color: '#b00' }}>
                   祝日カレンダーの読み込みに失敗しました（祝日判定なしで表示）。

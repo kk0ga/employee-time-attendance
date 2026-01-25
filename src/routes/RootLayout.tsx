@@ -25,6 +25,9 @@ export function RootLayout() {
         <Link to="/settings/sharepoint" activeProps={{ style: { fontWeight: 700 } }}>
           SharePoint設定
         </Link>
+        <Link to="/settings/work-rule" activeProps={{ style: { fontWeight: 700 } }}>
+          勤務ルール
+        </Link>
         <Link to="/about" activeProps={{ style: { fontWeight: 700 } }}>
           About
         </Link>

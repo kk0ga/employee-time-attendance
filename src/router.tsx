@@ -12,6 +12,7 @@ import { Dashboard } from './routes/Dashboard'
 import { Login } from './routes/Login'
 import { Punch } from './routes/Punch'
 import { SharePointSetup } from './routes/SharePointSetup'
+import { WorkRuleSettings } from './routes/WorkRule'
 import { RootLayout } from './routes/RootLayout'
 import { getSignedInAccount, msalInstance } from './auth/msalInstance'
 
@@ -79,6 +80,13 @@ const sharePointSetupRoute = createRoute({
   beforeLoad: requireAuth,
 })
 
+const workRuleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings/work-rule',
+  component: WorkRuleSettings,
+  beforeLoad: requireAuth,
+})
+
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
@@ -92,6 +100,7 @@ const routeTree = rootRoute.addChildren([
   attendanceRoute,
   punchRoute,
   sharePointSetupRoute,
+  workRuleRoute,
   loginRoute,
 ])
 

@@ -16,6 +16,10 @@ export function getAttendanceListId(): string {
   return requiredEnv('VITE_SP_ATTENDANCE_LIST_ID')
 }
 
+export function getWorkRuleListId(): string {
+  return requiredEnv('VITE_SP_WORK_RULE_LIST_ID')
+}
+
 export function getGraphScopes(): string[] {
   const raw = requiredEnv('VITE_GRAPH_SCOPES')
   return raw

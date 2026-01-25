@@ -83,8 +83,6 @@ export function Punch() {
 
   const canPunchStart = !startRecord
   const canPunchEnd = !!startRecord && !endRecord
-  const canFixStart = !!startRecord
-  const canFixEnd = !!endRecord
 
   const onPunch = async (type: PunchType) => {
     await createPunchMutation.mutateAsync(type)
@@ -161,20 +159,6 @@ export function Punch() {
               disabled={!canPunchEnd || createPunchMutation.isPending}
             >
               退勤打刻
-            </button>
-            <button
-              type="button"
-              onClick={() => onPunch('start')}
-              disabled={!canFixStart || createPunchMutation.isPending}
-            >
-              出勤修正
-            </button>
-            <button
-              type="button"
-              onClick={() => onPunch('end')}
-              disabled={!canFixEnd || createPunchMutation.isPending}
-            >
-              退勤修正
             </button>
           </div>
 

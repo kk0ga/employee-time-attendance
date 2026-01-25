@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { fetchAttendanceMonth } from '../lib/attendanceRepo'
+import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 
 function getTokyoYyyyMmDd(now: Date = new Date()): string {
@@ -45,28 +46,57 @@ export function Dashboard() {
     queryFn: () => fetchAttendanceMonth({ year, month }),
   })
 
+  const holidaysQuery = useQuery({
+    queryKey: ['holidays', year, month],
+    queryFn: () => fetchHolidaysForMonth({ year, month }),
+    retry: false,
+    staleTime: 1000 * 60 * 60 * 12,
+  })
+
   const todayAttendance = useMemo(() => {
     return attendanceQuery.data?.days.find((d) => d.date === today)
   }, [attendanceQuery.data, today])
 
   const monthSummary = useMemo(() => {
     const days = attendanceQuery.data?.days ?? []
+    const holidays = holidaysQuery.data ?? {}
 
-    const workdays = days.filter((d) => d.weekday >= 1 && d.weekday <= 5)
-    const attended = workdays.filter((d) => d.start)
+    const isHoliday = (date: string, weekday: number) => {
+      if (weekday === 0 || weekday === 6) return true
+      return !!holidays[date]
+    }
 
-    const totalMinutes = workdays.reduce((acc, d) => {
+    const businessDays = days.filter(
+      (d) => d.weekday >= 1 && d.weekday <= 5 && !isHoliday(d.date, d.weekday),
+    )
+    const holidayDays = days.filter((d) => isHoliday(d.date, d.weekday))
+
+    const businessAttended = businessDays.filter((d) => d.start)
+    const holidayAttended = holidayDays.filter((d) => d.start)
+
+    const businessMinutes = businessDays.reduce((acc, d) => {
+      if (!d.start || !d.end) return acc
+      const minutes = Math.max(0, toMinutes(d.end) - toMinutes(d.start))
+      return acc + minutes
+    }, 0)
+
+    const holidayMinutes = holidayDays.reduce((acc, d) => {
       if (!d.start || !d.end) return acc
       const minutes = Math.max(0, toMinutes(d.end) - toMinutes(d.start))
       return acc + minutes
     }, 0)
 
     return {
-      workdayCount: workdays.length,
-      attendedCount: attended.length,
-      totalMinutes,
+      businessDayCount: businessDays.length,
+      businessAttendedCount: businessAttended.length,
+      businessMinutes,
+      holidayCount: holidayDays.length,
+      holidayAttendedCount: holidayAttended.length,
+      holidayMinutes,
+      totalAttendedCount: businessAttended.length + holidayAttended.length,
+      totalMinutes: businessMinutes + holidayMinutes,
     }
-  }, [attendanceQuery.data])
+  }, [attendanceQuery.data, holidaysQuery.data])
 
   const lastUpdatedAt = attendanceQuery.dataUpdatedAt
     ? new Date(attendanceQuery.dataUpdatedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
@@ -116,7 +146,7 @@ export function Dashboard() {
         </section>
 
         <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今月サマリ（モック）</h2>
+          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今月サマリ（SharePoint）</h2>
 
           {attendanceQuery.isPending ? (
             <p>読み込み中...</p>
@@ -127,9 +157,21 @@ export function Dashboard() {
               <div>
                 対象: {year}年{month}月
               </div>
+              {holidaysQuery.isError ? (
+                <div style={{ color: '#b00' }}>
+                  祝日カレンダーの読み込みに失敗しました（祝日判定なしで表示）。
+                  `VITE_GCAL_HOLIDAY_CALENDAR_ID` の設定が正しいか確認してください。
+                </div>
+              ) : null}
               <div>
-                出勤日: {monthSummary.attendedCount} / {monthSummary.workdayCount}
+                出勤日（平日）: {monthSummary.businessAttendedCount} / {monthSummary.businessDayCount}
               </div>
+              <div>
+                出勤日（休日）: {monthSummary.holidayAttendedCount} / {monthSummary.holidayCount}
+              </div>
+              <div>労働時間（平日）: {formatMinutes(monthSummary.businessMinutes)}</div>
+              <div>労働時間（休日）: {formatMinutes(monthSummary.holidayMinutes)}</div>
+              <div>実出勤日合計: {monthSummary.totalAttendedCount}</div>
               <div>総労働時間: {formatMinutes(monthSummary.totalMinutes)}</div>
             </div>
           )}

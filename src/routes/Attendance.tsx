@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table'
 import type { AttendanceDay } from '../domain/attendance'
 import { fetchAttendanceMonth } from '../lib/attendanceRepo'
+import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { createPunch, type PunchType } from '../lib/graph/punches'
 import { GraphRequestError } from '../lib/graph/graphClient'
@@ -30,6 +31,13 @@ export function Attendance() {
   const attendanceQuery = useQuery({
     queryKey: ['attendance', year, month],
     queryFn: () => fetchAttendanceMonth({ year, month }),
+  })
+
+  const holidaysQuery = useQuery({
+    queryKey: ['holidays', year, month],
+    queryFn: () => fetchHolidaysForMonth({ year, month }),
+    retry: false,
+    staleTime: 1000 * 60 * 60 * 12,
   })
 
   const createPunchMutation = useMutation({
@@ -89,7 +97,12 @@ export function Attendance() {
       {
         header: '曜日',
         accessorKey: 'weekday',
-        cell: ({ getValue }) => weekdayJa(getValue<number>()),
+        cell: ({ row, getValue }) => {
+          const weekday = getValue<number>()
+          const date = row.original.date
+          const holidayName = holidaysQuery.data?.[date]
+          return holidayName ? `${weekdayJa(weekday)}（祝: ${holidayName}）` : weekdayJa(weekday)
+        },
       },
       {
         header: '出勤',
@@ -158,7 +171,7 @@ export function Attendance() {
         },
       },
     ],
-    [createPunchMutation, editTimes, setEditValue],
+    [createPunchMutation, editTimes, holidaysQuery.data, setEditValue],
   )
 
   const table = useReactTable({
@@ -176,6 +189,12 @@ export function Attendance() {
 
       {createPunchMutation.isError ? (
         <p style={{ color: '#b00' }}>修正打刻に失敗しました: {createErrorMessage}</p>
+      ) : null}
+
+      {holidaysQuery.isError ? (
+        <p style={{ color: '#b00' }}>
+          祝日カレンダーの読み込みに失敗しました（`VITE_GCAL_HOLIDAY_CALENDAR_ID` を確認してください）
+        </p>
       ) : null}
 
       {attendanceQuery.isPending ? (

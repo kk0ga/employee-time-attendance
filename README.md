@@ -21,6 +21,14 @@
 - `VITE_SP_PUNCH_LIST_ID`（打刻リストの listId GUID）
 - `VITE_SP_ATTENDANCE_LIST_ID`（勤怠一覧リストの listId GUID）
 
+祝日（Google カレンダー）を使う場合（オンデマンド）:
+
+- `VITE_GCAL_API_KEY`
+  - ブラウザから直接呼ぶため **必ず APIキーを HTTP referrer で制限**してください（GitHub Pages のURLに限定）
+- `VITE_GCAL_HOLIDAY_CALENDAR_ID`
+  - 祝日カレンダーの Calendar ID（Google Calendar の設定画面で確認）
+  - 例: `ja.japanese#holiday@group.v.calendar.google.com`（環境により異なる場合があります）
+
 SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
 
 - `PunchType`（1行テキスト or Choice: start/end）
@@ -43,6 +51,10 @@ SharePoint 側のリスト（例: `Punches`）に作る列（推奨）:
   - `Punches` にレコードを追記
   - `Attendance` の当日レコードを作成/更新
 - 勤怠一覧は `/#/attendance` で `Attendance` リストから取得します。
+
+集計:
+
+- ダッシュボードの「平日」は **土日祝を除外**して集計します（祝日は Google Calendar から当月分をオンデマンド取得）。
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

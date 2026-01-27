@@ -28,3 +28,6 @@ license: MIT
 ## 依頼例
 - 「勤務表の列定義と表示フォーマットを統一したい」
 - 「承認一覧に status フィルタを付けたい」
+
+## References
+- [docs/frontend-data-contract.md](../../../docs/frontend-data-contract.md)

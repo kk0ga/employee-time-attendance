@@ -33,3 +33,6 @@ license: MIT
 ## 関連スキル
 - [prd](../prd/SKILL.md)
 - [github-issues](../github-issues/SKILL.md)
+
+## References
+- [docs/README.md](../../../docs/README.md)

@@ -25,3 +25,6 @@ Issueで **要件・受け入れ条件・作業範囲** を固定する。
 ## 依頼例
 - 「ログイン失敗のIssueを作って。再現手順と期待値も入れて」
 - 「勤怠のPDF出力を機能Issueとして整理して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

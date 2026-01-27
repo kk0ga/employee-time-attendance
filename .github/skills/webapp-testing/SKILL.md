@@ -31,3 +31,6 @@ license: MIT
 ## 関連スキル
 - [entra-msal-auth-spa](../entra-msal-auth-spa/SKILL.md)
 - [static-hosting-ci-cd](../static-hosting-ci-cd/SKILL.md)
+
+## References
+- [docs/README.md](../../../docs/README.md)

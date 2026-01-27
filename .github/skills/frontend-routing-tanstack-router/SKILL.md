@@ -28,3 +28,6 @@ license: MIT
 ## 依頼例
 - 「承認画面のルート設計と search param を決めたい」
 - 「loader で prefetch する Query 設計を提案して」
+
+## References
+- [docs/frontend-data-contract.md](../../../docs/frontend-data-contract.md)

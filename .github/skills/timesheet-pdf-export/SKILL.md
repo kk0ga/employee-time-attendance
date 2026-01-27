@@ -38,3 +38,6 @@ license: MIT
 
 ## 関連スキル
 - [image-manipulation-image-magick](../image-manipulation-image-magick/SKILL.md)
+
+## References
+- [docs/README.md](../../../docs/README.md)

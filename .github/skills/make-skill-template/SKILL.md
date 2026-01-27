@@ -29,3 +29,6 @@ license: MIT
 
 ## 依頼例
 - 「Graph関連のスキルを追加したい。テンプレから作って」
+
+## References
+- [skills/README.md](../README.md)

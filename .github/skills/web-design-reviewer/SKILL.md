@@ -22,3 +22,6 @@ license: MIT
 
 ## 依頼例
 - 「/dashboard の見た目と導線をレビューして改善案を出して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

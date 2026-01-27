@@ -35,3 +35,6 @@ license: MIT
 ## 依頼例
 - 「ghでPRのチェック結果を確認して、失敗ログを取って」
 - 「Issueをテンプレで作って、タスク分割して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

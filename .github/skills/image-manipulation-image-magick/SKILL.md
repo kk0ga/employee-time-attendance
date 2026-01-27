@@ -29,3 +29,6 @@ license: MIT
 ## 依頼例
 - 「ロゴをA4 PDF用に横200px相当に整えて」
 - 「SVGロゴを透過PNGに変換して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

@@ -62,3 +62,6 @@ license: MIT
 - 「Entra ID + MSAL のログインを導入して、未ログイン時は /login に飛ばしたい」
 - 「acquireTokenSilent を優先して、失敗時だけredirectフォールバックしたい」
 - 「GitHub Pages（Hashルーティング）でMSALのredirectUriをどうするべき？」
+
+## References
+- [docs/README.md](../../../docs/README.md)

@@ -41,3 +41,6 @@ license: MIT
 ## 依頼例
 - 「丸めルールを 15分単位にしたい。仕様とテストケース作って」
 - 「日またぎ勤務をどう扱うべき？実装方針も含めて整理して」
+
+## References
+- [docs/attendance-summary.md](../../../docs/attendance-summary.md)

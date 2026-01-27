@@ -24,3 +24,6 @@ license: MIT
 ## 依頼例
 - 「MCPの設定を見直して、必要なサーバーを追加して」
 - 「起動しない原因を切り分けて」
+
+## References
+- [docs/README.md](../../../docs/README.md)

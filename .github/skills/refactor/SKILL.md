@@ -23,3 +23,6 @@ license: MIT
 
 ## 依頼例
 - 「Graph呼び出しを `src/lib/graph` に集約したい。手順を出して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

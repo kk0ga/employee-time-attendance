@@ -34,3 +34,6 @@ license: MIT
 
 ## 関連スキル
 - [gh-cli](../gh-cli/SKILL.md)
+
+## References
+- [docs/README.md](../../../docs/README.md)

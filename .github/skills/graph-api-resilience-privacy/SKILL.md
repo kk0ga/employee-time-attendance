@@ -54,3 +54,6 @@ Microsoft Graph を使ったデータ取得/更新を、
 - 「Graphで一覧取得してるけど、429が出る。Retry-After対応のリトライを入れたい」
 - 「401/403/429 の時の画面表示と再試行導線を整えたい」
 - 「SharePoint Lists の取得を差分更新にしたい（5分間隔で十分）」
+
+## References
+- [docs/frontend-data-contract.md](../../../docs/frontend-data-contract.md)

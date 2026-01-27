@@ -28,3 +28,6 @@ license: MIT
 ## 依頼例
 - 「time_entries の queryKey と invalidate 設計を決めたい」
 - 「打刻は楽観更新したい。UI/データ整合性の設計を出して」
+
+## References
+- [docs/frontend-data-contract.md](../../../docs/frontend-data-contract.md)

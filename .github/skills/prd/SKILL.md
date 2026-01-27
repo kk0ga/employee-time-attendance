@@ -20,3 +20,6 @@ license: MIT
 
 ## 依頼例
 - 「月次申請のPRDを書いて。受け入れ条件も」
+
+## References
+- [docs/README.md](../../../docs/README.md)

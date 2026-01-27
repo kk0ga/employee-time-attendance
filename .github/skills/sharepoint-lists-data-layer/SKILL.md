@@ -58,3 +58,6 @@ license: MIT
 ## 関連スキル
 - [microsoft-docs](../microsoft-docs/SKILL.md)
 - [graph-api-resilience-privacy](../graph-api-resilience-privacy/SKILL.md)
+
+## References
+- [docs/README.md](../../../docs/README.md)

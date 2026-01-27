@@ -31,3 +31,6 @@ license: MIT
 ## 依頼例
 - 「今の変更を2コミットに分けて（UIとデータ層）」
 - 「コミットメッセージ案を作って」
+
+## References
+- [docs/README.md](../../../docs/README.md)

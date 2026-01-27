@@ -33,3 +33,6 @@ license: MIT
 ## 関連スキル
 - [web-design-reviewer](../web-design-reviewer/SKILL.md)
 - [refactor](../refactor/SKILL.md)
+
+## References
+- [docs/frontend-data-contract.md](../../../docs/frontend-data-contract.md)

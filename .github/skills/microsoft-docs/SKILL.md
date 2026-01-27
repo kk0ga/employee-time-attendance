@@ -22,3 +22,6 @@ license: MIT
 ## 依頼例
 - 「SharePoint Lists を Graph で扱う手順を公式から確認して」
 - 「MSALのキャッシュ設定の推奨を確認して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

@@ -20,3 +20,6 @@ MSAL/Graph など Microsoft系実装を、推測ではなく **公式サンプ�
 ## 依頼例
 - 「GraphでSharePoint Listを読む公式サンプルを探して適用方針を出して」
 - 「MSALのredirect処理の推奨例を探して」
+
+## References
+- [docs/README.md](../../../docs/README.md)

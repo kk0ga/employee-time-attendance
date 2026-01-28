@@ -24,6 +24,14 @@ function normalizeTime(value: string): string {
 export function Attendance() {
   const { year, month } = getTokyoYearMonth()
   const queryClient = useQueryClient()
+  const todayTokyo = useMemo(() => {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+  }, [])
 
   const [editTimes, setEditTimes] = useState<
     Record<string, { start?: string; end?: string }>
@@ -341,6 +349,7 @@ export function Attendance() {
           <tbody>
             {table.getRowModel().rows.map((row) => {
               const record = row.original
+              const isToday = record.date === todayTokyo
               const isSundayOrHoliday =
                 record.weekday === 0 || !!holidaysQuery.data?.[record.date]
               const isSaturday = record.weekday === 6
@@ -349,9 +358,14 @@ export function Attendance() {
                 : isSaturday
                   ? '#e0f2fe'
                   : undefined
+              const rowStyle = isToday
+                ? { backgroundColor: '#fef9c3' }
+                : rowBackground
+                  ? { backgroundColor: rowBackground }
+                  : undefined
 
               return (
-                <tr key={row.id} style={rowBackground ? { backgroundColor: rowBackground } : undefined}>
+                <tr key={row.id} style={rowStyle}>
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}

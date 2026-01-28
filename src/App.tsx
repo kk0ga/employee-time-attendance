@@ -10,7 +10,7 @@ function App() {
 
   return (
     <main className="app">
-      <h1>hello world</h1>
+      <h1>勤怠管理ダッシュボード</h1>
       <p>
         tanstack query: {nowQuery.isPending ? 'loading...' : nowQuery.data}
       </p>

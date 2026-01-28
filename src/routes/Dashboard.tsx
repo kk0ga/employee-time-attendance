@@ -132,6 +132,30 @@ export function Dashboard() {
     await queryClient.invalidateQueries({ queryKey: ['attendance', year, month] })
   }
 
+  const summaryCardStyle: React.CSSProperties = {
+    border: '1px solid #e2e8f0',
+    borderRadius: 12,
+    padding: 12,
+    background: 'linear-gradient(135deg, rgba(248,250,252,0.9), rgba(255,255,255,0.9))',
+  }
+
+  const summaryValueStyle: React.CSSProperties = {
+    fontSize: 22,
+    fontWeight: 700,
+    color: '#0f172a',
+  }
+
+  const summaryLabelStyle: React.CSSProperties = {
+    fontSize: 12,
+    color: '#64748b',
+  }
+
+  const summarySubStyle: React.CSSProperties = {
+    fontSize: 12,
+    color: '#475569',
+    marginTop: 4,
+  }
+
   return (
     <main className="app">
       <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
@@ -172,49 +196,96 @@ export function Dashboard() {
         </section>
 
         <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今月サマリ（SharePoint）</h2>
+          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今月サマリ</h2>
 
           {attendanceQuery.isPending ? (
             <p>読み込み中...</p>
           ) : attendanceQuery.isError ? (
             <p>読み込みに失敗しました</p>
           ) : (
-            <div style={{ display: 'grid', gap: 6 }}>
-              <div>
-                対象: {year}年{month}月
+            <div style={{ display: 'grid', gap: 12 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  fontSize: 13,
+                  color: '#475569',
+                }}
+              >
+                <div>
+                  対象: {year}年{month}月
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>法定休日: 日曜日</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>祝日: Google Calendar</span>
+                </div>
               </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: 10,
+                }}
+              >
+                <div style={summaryCardStyle}>
+                  <div style={summaryLabelStyle}>実出勤日</div>
+                  <div style={summaryValueStyle}>{monthSummary.totalAttendedCount}日</div>
+                  <div style={summarySubStyle}>
+                    平日 {monthSummary.businessAttendedCount} / 休日 {monthSummary.holidayAttendedCount}
+                  </div>
+                </div>
+                <div style={summaryCardStyle}>
+                  <div style={summaryLabelStyle}>総労働時間</div>
+                  <div style={summaryValueStyle}>{formatMinutes(monthSummary.totalMinutes)}</div>
+                  <div style={summarySubStyle}>
+                    平日 {formatMinutes(monthSummary.businessMinutes)} / 休日 {formatMinutes(monthSummary.holidayMinutes)}
+                  </div>
+                </div>
+                <div style={summaryCardStyle}>
+                  <div style={summaryLabelStyle}>出勤日数（平日）</div>
+                  <div style={summaryValueStyle}>
+                    {monthSummary.businessAttendedCount} / {monthSummary.businessDayCount}
+                  </div>
+                  <div style={summarySubStyle}>平日総日数に対する出勤日数</div>
+                </div>
+                <div style={summaryCardStyle}>
+                  <div style={summaryLabelStyle}>出勤日数（休日）</div>
+                  <div style={summaryValueStyle}>
+                    {monthSummary.holidayAttendedCount} / {monthSummary.holidayCount}
+                  </div>
+                  <div style={summarySubStyle}>土日祝の出勤日数</div>
+                </div>
+              </div>
+
               {workRuleQuery.isError ? (
-                <div style={{ color: '#b00' }}>
+                <div style={{ color: '#b00', fontSize: 12 }}>
                   勤務ルールの読み込みに失敗しました（デフォルト値で集計）。
                   SharePoint の `VITE_SP_WORK_RULE_LIST_ID` とリスト列を確認してください。
                 </div>
               ) : null}
-              <div>
-                勤務ルール: 所定 {formatMinutes(monthSummary.scheduledDailyMinutes)} / 休憩 {monthSummary.breakMinutes}分 / 丸め{' '}
-                {formatRoundingLabel({
-                  unit: monthSummary.roundingUnitMinutes,
-                  start: monthSummary.roundStart,
-                  end: monthSummary.roundEnd,
-                })}
-                （<Link to="/settings/work-rule">変更</Link>）
+
+              <div style={{ display: 'grid', gap: 6, fontSize: 13, color: '#0f172a' }}>
+                <div>
+                  勤務ルール: 所定 {formatMinutes(monthSummary.scheduledDailyMinutes)} / 休憩 {monthSummary.breakMinutes}分 / 丸め{' '}
+                  {formatRoundingLabel({
+                    unit: monthSummary.roundingUnitMinutes,
+                    start: monthSummary.roundStart,
+                    end: monthSummary.roundEnd,
+                  })}
+                  （<Link to="/settings/work-rule">変更</Link>）
+                </div>
               </div>
-              <div>法定休日: 日曜日（固定）</div>
+
               {holidaysQuery.isError ? (
-                <div style={{ color: '#b00' }}>
+                <div style={{ color: '#b00', fontSize: 12 }}>
                   祝日カレンダーの読み込みに失敗しました（祝日判定なしで表示）。
                   `VITE_GCAL_HOLIDAY_CALENDAR_ID` の設定が正しいか確認してください。
                 </div>
               ) : null}
-              <div>
-                出勤日（平日）: {monthSummary.businessAttendedCount} / {monthSummary.businessDayCount}
-              </div>
-              <div>
-                出勤日（休日）: {monthSummary.holidayAttendedCount} / {monthSummary.holidayCount}
-              </div>
-              <div>労働時間（平日）: {formatMinutes(monthSummary.businessMinutes)}</div>
-              <div>労働時間（休日）: {formatMinutes(monthSummary.holidayMinutes)}</div>
-              <div>実出勤日合計: {monthSummary.totalAttendedCount}</div>
-              <div>総労働時間: {formatMinutes(monthSummary.totalMinutes)}</div>
             </div>
           )}
         </section>

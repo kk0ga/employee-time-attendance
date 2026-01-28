@@ -37,6 +37,7 @@
 - `['work-rule', 'me']`
 - `['work-rule', 'columns']`
 - `['punches', date]`
+- `['work-categories']`
 - `['sharepoint-sites-search', keyword]`
 - `['sharepoint-lists', siteId]`
 
@@ -85,9 +86,12 @@
 **Query**
 - attendance（当月）: `['attendance', year, month]`
 - holidays（当月）: `['holidays', year, month]`
+- work-categories: `['work-categories']`
 
 **Mutation**
 - 修正打刻（createPunch）
+  - 成功時: `invalidateQueries(['attendance', year, month])`
+- 勤務区分更新（updateAttendanceCategory）
   - 成功時: `invalidateQueries(['attendance', year, month])`
 
 ---

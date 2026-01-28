@@ -8,11 +8,12 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import type { AttendanceDay } from '../domain/attendance'
-import { fetchAttendanceMonth } from '../lib/attendanceRepo'
+import { fetchAttendanceMonth, updateAttendanceCategory } from '../lib/attendanceRepo'
 import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { createPunch, type PunchType } from '../lib/graph/punches'
 import { GraphRequestError } from '../lib/graph/graphClient'
+import { fetchWorkCategories } from '../lib/workCategoryRepo'
 
 function normalizeTime(value: string): string {
   const parts = value.split(':')
@@ -27,6 +28,7 @@ export function Attendance() {
   const [editTimes, setEditTimes] = useState<
     Record<string, { start?: string; end?: string }>
   >({})
+  const [editCategories, setEditCategories] = useState<Record<string, string>>({})
 
   const attendanceQuery = useQuery({
     queryKey: ['attendance', year, month],
@@ -36,6 +38,13 @@ export function Attendance() {
   const holidaysQuery = useQuery({
     queryKey: ['holidays', year, month],
     queryFn: () => fetchHolidaysForMonth({ year, month }),
+    retry: false,
+    staleTime: 1000 * 60 * 60 * 12,
+  })
+
+  const workCategoriesQuery = useQuery({
+    queryKey: ['work-categories'],
+    queryFn: () => fetchWorkCategories(),
     retry: false,
     staleTime: 1000 * 60 * 60 * 12,
   })
@@ -66,6 +75,19 @@ export function Attendance() {
     },
   })
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: (params: { date: string; workCategory: string | null }) =>
+      updateAttendanceCategory(params),
+    onSuccess: async (_data, variables) => {
+      setEditCategories((prev) => {
+        const next = { ...prev }
+        delete next[variables.date]
+        return next
+      })
+      await queryClient.invalidateQueries({ queryKey: ['attendance', year, month] })
+    },
+  })
+
   const createErrorMessage = useMemo(() => {
     const err = createPunchMutation.error
     if (!err) return null
@@ -75,6 +97,16 @@ export function Attendance() {
     if (err instanceof Error) return err.message
     return '不明なエラー'
   }, [createPunchMutation.error])
+
+  const updateCategoryErrorMessage = useMemo(() => {
+    const err = updateCategoryMutation.error
+    if (!err) return null
+    if (err instanceof GraphRequestError) {
+      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
+    }
+    if (err instanceof Error) return err.message
+    return '不明なエラー'
+  }, [updateCategoryMutation.error])
 
   const setEditValue = useMemo(() => {
     return (date: string, type: PunchType, value: string) => {
@@ -87,6 +119,28 @@ export function Attendance() {
       }))
     }
   }, [])
+
+  const setEditCategory = useMemo(() => {
+    return (date: string, value: string) => {
+      setEditCategories((prev) => ({ ...prev, [date]: value }))
+    }
+  }, [])
+
+  const editIcon = (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      style={{ display: 'block' }}
+    >
+      <path
+        d="M4 17.25V20h2.75L17.81 8.94l-2.75-2.75L4 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-1.5-1.5a1.003 1.003 0 0 0-1.42 0l-1.13 1.13 2.75 2.75 1.3-1.3Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
 
   const columns = useMemo<ColumnDef<AttendanceDay>[]>(
     () => [
@@ -102,6 +156,39 @@ export function Attendance() {
           const date = row.original.date
           const holidayName = holidaysQuery.data?.[date]
           return holidayName ? `${weekdayJa(weekday)}（祝: ${holidayName}）` : weekdayJa(weekday)
+        },
+      },
+      {
+        header: '勤務区分',
+        accessorKey: 'workCategory',
+        cell: ({ row }) => {
+          const record = row.original
+          const value = editCategories[record.date] ?? record.workCategory ?? ''
+          const disabled = updateCategoryMutation.isPending
+          const options = workCategoriesQuery.data ?? []
+
+          return (
+            <select
+              value={value}
+              onChange={(event) => {
+                const selected = event.target.value
+                setEditCategory(record.date, selected)
+                updateCategoryMutation.mutateAsync({
+                  date: record.date,
+                  workCategory: selected ? selected : null,
+                })
+              }}
+              disabled={disabled}
+              style={{ padding: '4px 6px' }}
+            >
+              <option value="">未設定</option>
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          )
         },
       },
       {
@@ -130,8 +217,11 @@ export function Attendance() {
                   })
                 }
                 disabled={!canSubmitStart}
+                aria-label="出勤時刻を修正"
+                title="出勤時刻を修正"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px' }}
               >
-                修正
+                {editIcon}
               </button>
             </div>
           )
@@ -163,15 +253,27 @@ export function Attendance() {
                   })
                 }
                 disabled={!canSubmitEnd}
+                aria-label="退勤時刻を修正"
+                title="退勤時刻を修正"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px' }}
               >
-                修正
+                {editIcon}
               </button>
             </div>
           )
         },
       },
     ],
-    [createPunchMutation, editTimes, holidaysQuery.data, setEditValue],
+    [
+      createPunchMutation,
+      editCategories,
+      editTimes,
+      holidaysQuery.data,
+      setEditCategory,
+      setEditValue,
+      updateCategoryMutation.isPending,
+      workCategoriesQuery.data,
+    ],
   )
 
   const table = useReactTable({
@@ -191,10 +293,20 @@ export function Attendance() {
         <p style={{ color: '#b00' }}>修正打刻に失敗しました: {createErrorMessage}</p>
       ) : null}
 
+      {updateCategoryMutation.isError ? (
+        <p style={{ color: '#b00' }}>
+          勤務区分の更新に失敗しました: {updateCategoryErrorMessage}
+        </p>
+      ) : null}
+
       {holidaysQuery.isError ? (
         <p style={{ color: '#b00' }}>
           祝日カレンダーの読み込みに失敗しました（`VITE_GCAL_HOLIDAY_CALENDAR_ID` を確認してください）
         </p>
+      ) : null}
+
+      {workCategoriesQuery.isError ? (
+        <p style={{ color: '#b00' }}>勤務区分の取得に失敗しました。</p>
       ) : null}
 
       {attendanceQuery.isPending ? (
@@ -227,8 +339,19 @@ export function Attendance() {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+            {table.getRowModel().rows.map((row) => {
+              const record = row.original
+              const isSundayOrHoliday =
+                record.weekday === 0 || !!holidaysQuery.data?.[record.date]
+              const isSaturday = record.weekday === 6
+              const rowBackground = isSundayOrHoliday
+                ? '#fee2e2'
+                : isSaturday
+                  ? '#e0f2fe'
+                  : undefined
+
+              return (
+                <tr key={row.id} style={rowBackground ? { backgroundColor: rowBackground } : undefined}>
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
@@ -237,8 +360,9 @@ export function Attendance() {
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
-              </tr>
-            ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       )}

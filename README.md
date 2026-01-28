@@ -30,6 +30,7 @@ GitHub Pages 上で動作する React SPA として、Entra ID（OIDC + PKCE）/
 - `VITE_SP_PUNCH_LIST_ID`（打刻リストの listId GUID）
 - `VITE_SP_ATTENDANCE_LIST_ID`（勤怠一覧リストの listId GUID）
 - `VITE_SP_WORK_RULE_LIST_ID`（勤務ルールリストの listId GUID）
+- `VITE_SP_WORK_CATEGORY_LIST_ID`（勤務区分リストの listId GUID）
 
 ### 祝日（Google Calendar, 任意）
 - `VITE_GCAL_API_KEY`
@@ -60,6 +61,7 @@ GitHub Pages 上で動作する React SPA として、Entra ID（OIDC + PKCE）/
 - AttendanceDate（1行テキスト: YYYY-MM-DD）
 - StartTime（1行テキスト: HH:mm）
 - EndTime（1行テキスト: HH:mm）
+- WorkCategory（1行テキスト: 例）
 - UserObjectId（1行テキスト）
 
 ### WorkRule（勤務ルール）
@@ -70,6 +72,9 @@ GitHub Pages 上で動作する React SPA として、Entra ID（OIDC + PKCE）/
 - RoundingUnitMinutes（数値: 丸め単位（分））
 - RoundStart（1行テキスト or Choice: none/floor/ceil/nearest）
 - RoundEnd（1行テキスト or Choice: none/floor/ceil/nearest）
+
+### WorkCategory（勤務区分）
+- Title（1行テキスト: 出勤/欠勤/有休 など）
 
 ## 仕様・設計ドキュメント
 - [docs/README.md](docs/README.md)

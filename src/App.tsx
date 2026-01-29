@@ -1,4 +1,3 @@
-import './App.css'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
@@ -9,7 +8,7 @@ function App() {
   })
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>勤怠管理ダッシュボード</h1>
       <p>
         tanstack query: {nowQuery.isPending ? 'loading...' : nowQuery.data}

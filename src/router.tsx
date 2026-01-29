@@ -11,6 +11,7 @@ import { About } from './routes/About'
 import { Dashboard } from './routes/Dashboard'
 import { Login } from './routes/Login'
 import { Punch } from './routes/Punch'
+import { Reports } from './routes/Reports'
 import { SharePointSetup } from './routes/SharePointSetup'
 import { WorkRuleSettings } from './routes/WorkRule'
 import { RootLayout } from './routes/RootLayout'
@@ -73,6 +74,13 @@ const punchRoute = createRoute({
   beforeLoad: requireAuth,
 })
 
+const reportsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/reports',
+  component: Reports,
+  beforeLoad: requireAuth,
+})
+
 const sharePointSetupRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings/sharepoint',
@@ -99,6 +107,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   attendanceRoute,
   punchRoute,
+  reportsRoute,
   sharePointSetupRoute,
   workRuleRoute,
   loginRoute,

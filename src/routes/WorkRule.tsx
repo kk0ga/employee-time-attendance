@@ -2,8 +2,12 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { RoundingMode, WorkRule } from '../domain/workRule'
 import { fetchMyWorkRule, fetchWorkRuleListColumns, saveMyWorkRule } from '../lib/workRuleRepo'
-import { GraphRequestError } from '../lib/graph/graphClient'
 import type { ListColumnInfo } from '../lib/graph/listColumns'
+import { Button } from '../components/ui/Button'
+import { Section } from '../components/ui/Section'
+import { Input } from '../components/ui/Input'
+import { Select } from '../components/ui/Select'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 
 const REQUIRED_WORK_RULE_COLUMNS = [
   'UserObjectId',
@@ -67,107 +71,104 @@ function WorkRuleForm(props: {
 
   return (
     <>
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>所定労働時間（1日）</h2>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <label style={{ display: 'grid', gap: 6 }}>
+      <Section title="所定労働時間（1日）">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <label className="grid gap-1.5">
             <span>時間</span>
-            <input
+            <Input
               type="number"
               min={0}
               max={24}
               value={scheduledHours}
               onChange={(e) => setScheduledHours(Number(e.target.value))}
-              style={{ padding: 8, width: 120 }}
+              className="w-[120px]"
             />
           </label>
-          <label style={{ display: 'grid', gap: 6 }}>
+          <label className="grid gap-1.5">
             <span>分</span>
-            <input
+            <Input
               type="number"
               min={0}
               max={59}
               step={5}
               value={scheduledMinutes}
               onChange={(e) => setScheduledMinutes(Number(e.target.value))}
-              style={{ padding: 8, width: 120 }}
+              className="w-[120px]"
             />
           </label>
         </div>
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>休憩</h2>
-        <label style={{ display: 'grid', gap: 6 }}>
+      <Section title="休憩">
+        <label className="grid gap-1.5">
           <span>休憩時間（分）</span>
-          <input
+          <Input
             type="number"
             min={0}
             max={600}
             step={5}
             value={breakMinutes}
             onChange={(e) => setBreakMinutes(Number(e.target.value))}
-            style={{ padding: 8, width: 180 }}
+            className="w-[180px]"
           />
         </label>
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>丸め</h2>
-        <div style={{ display: 'grid', gap: 10 }}>
-          <label style={{ display: 'grid', gap: 6 }}>
+      <Section title="丸め">
+        <div className="grid gap-2.5">
+          <label className="grid gap-1.5">
             <span>丸め単位（分）</span>
-            <input
+            <Input
               type="number"
               min={0}
               max={60}
               step={1}
               value={roundingUnitMinutes}
               onChange={(e) => setRoundingUnitMinutes(Number(e.target.value))}
-              style={{ padding: 8, width: 180 }}
+              className="w-[180px]"
             />
-            <span style={{ fontSize: 12, opacity: 0.75 }}>
+            <span className="text-[12px] opacity-75">
               0 の場合は丸めなし（開始/終了とも）。
             </span>
           </label>
 
-          <label style={{ display: 'grid', gap: 6 }}>
+          <label className="grid gap-1.5">
             <span>出勤（開始）の丸め</span>
-            <select
+            <Select
               value={roundStart}
               onChange={(e) => setRoundStart(toMode(e.target.value))}
-              style={{ padding: 8, width: 240 }}
+              className="w-[240px]"
             >
               <option value="none">なし</option>
               <option value="floor">切り捨て</option>
               <option value="ceil">切り上げ</option>
               <option value="nearest">四捨五入</option>
-            </select>
+            </Select>
           </label>
 
-          <label style={{ display: 'grid', gap: 6 }}>
+          <label className="grid gap-1.5">
             <span>退勤（終了）の丸め</span>
-            <select
+            <Select
               value={roundEnd}
               onChange={(e) => setRoundEnd(toMode(e.target.value))}
-              style={{ padding: 8, width: 240 }}
+              className="w-[240px]"
             >
               <option value="none">なし</option>
               <option value="floor">切り捨て</option>
               <option value="ceil">切り上げ</option>
               <option value="nearest">四捨五入</option>
-            </select>
+            </Select>
           </label>
         </div>
-      </section>
+      </Section>
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-        <button type="button" onClick={onSaveClick} disabled={props.isSaving || props.isReloading}>
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Button onClick={onSaveClick} disabled={props.isSaving || props.isReloading}>
           {props.isSaving ? '保存中…' : '保存'}
-        </button>
-        <button type="button" onClick={() => props.onReload()} disabled={props.isReloading}>
+        </Button>
+        <Button variant="ghost" onClick={() => props.onReload()} disabled={props.isReloading}>
           {props.isReloading ? '再読み込み中…' : '再読み込み'}
-        </button>
+        </Button>
       </div>
     </>
   )
@@ -204,26 +205,6 @@ export function WorkRuleSettings() {
     await ruleQuery.refetch()
   }
 
-  const loadErrorMessage = useMemo(() => {
-    const err = ruleQuery.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [ruleQuery.error])
-
-  const saveErrorMessage = useMemo(() => {
-    const err = saveMutation.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [saveMutation.error])
-
   const columnsStatus = useMemo(() => {
     const names = new Set((columnsQuery.data ?? []).map((c) => c.name))
     const missing = REQUIRED_WORK_RULE_COLUMNS.filter((c) => !names.has(c))
@@ -231,44 +212,55 @@ export function WorkRuleSettings() {
   }, [columnsQuery.data])
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>勤務ルール（個人設定）</h1>
-      <p style={{ marginTop: 4, opacity: 0.8 }}>
+      <p className="mt-1 opacity-80">
         ※固定労働制のみ。値は SharePoint List に保存され、集計に反映されます。
       </p>
 
-      {ruleQuery.isPending ? <p>読み込み中...</p> : null}
-      {ruleQuery.isError ? (
-        <p style={{ color: '#b00' }}>読み込みに失敗しました: {loadErrorMessage}</p>
-      ) : null}
-      {saveMutation.isError ? (
-        <p style={{ color: '#b00' }}>保存に失敗しました: {saveErrorMessage}</p>
-      ) : null}
-      {saveMutation.isSuccess ? <p style={{ color: '#070' }}>保存しました。</p> : null}
+      {ruleQuery.isPending && <p>読み込み中...</p>}
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>SharePoint リスト列チェック</h2>
+      {ruleQuery.isError && (
+        <ErrorMessage
+          title="読み込みに失敗しました"
+          error={ruleQuery.error}
+          onRetry={() => ruleQuery.refetch()}
+        />
+      )}
+
+      {saveMutation.isError && (
+        <ErrorMessage
+          title="保存に失敗しました"
+          error={saveMutation.error}
+        />
+      )}
+
+      {saveMutation.isSuccess && <p className="mt-4 text-[#070]">保存しました。</p>}
+
+      <Section title="SharePoint リスト列チェック">
         {columnsQuery.isPending ? <p>確認中...</p> : null}
         {columnsQuery.isError ? (
-          <p style={{ color: '#b00' }}>
-            列一覧の取得に失敗しました。`VITE_SP_WORK_RULE_LIST_ID` が正しいか、権限があるか確認してください。
-          </p>
+          <ErrorMessage
+            title="列一覧の取得に失敗しました"
+            message="`VITE_SP_WORK_RULE_LIST_ID` が正しいか、権限があるか確認してください。"
+            error={columnsQuery.error}
+          />
         ) : null}
         {columnsQuery.data ? (
-          <div style={{ display: 'grid', gap: 6 }}>
+          <div className="grid gap-1.5">
             <div>
               必須列: {columnsStatus.total}件 / 不足: {columnsStatus.missing.length}件
             </div>
             {columnsStatus.missing.length > 0 ? (
-              <div style={{ color: '#b00' }}>
+              <div className="text-[#b00]">
                 不足列（内部名）: {columnsStatus.missing.join(', ')}
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
+                <div className="mt-1 text-[12px] opacity-80">
                   ※列名は「内部名（Internal name）」が一致している必要があります。
                   Choice列を使う場合は値を none/floor/ceil/nearest に揃えるか、1行テキスト列を推奨します。
                 </div>
               </div>
             ) : (
-              <div style={{ color: '#070' }}>必須列は揃っています。</div>
+              <div className="text-[#070]">必須列は揃っています。</div>
             )}
 
             {(() => {
@@ -283,7 +275,7 @@ export function WorkRuleSettings() {
                 : '（未検出）'
 
               return (
-                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 6 }}>
+                <div className="mt-1.5 text-[12px] opacity-85">
                   <div>RoundStart: {roundStartInfo}</div>
                   <div>RoundEnd: {roundEndInfo}</div>
                 </div>
@@ -291,7 +283,7 @@ export function WorkRuleSettings() {
             })()}
           </div>
         ) : null}
-      </section>
+      </Section>
 
       {ruleQuery.data ? (
         <WorkRuleForm
@@ -304,8 +296,8 @@ export function WorkRuleSettings() {
         />
       ) : null}
 
-      {!ruleQuery.data && !ruleQuery.isPending ? (
-        <p style={{ marginTop: 12 }}>設定が読み込めないため、フォームを表示できません。</p>
+      {!ruleQuery.data && !ruleQuery.isPending && !ruleQuery.isError ? (
+        <p className="mt-3">設定が読み込めないため、フォームを表示できません。</p>
       ) : null}
     </main>
   )

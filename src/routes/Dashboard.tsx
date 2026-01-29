@@ -7,6 +7,10 @@ import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { fetchMyWorkRule } from '../lib/workRuleRepo'
 import { calculateWorkedMinutes } from '../lib/workTime'
+import { Section } from '../components/ui/Section'
+import { StatsCard } from '../components/ui/StatsCard'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Button } from '../components/ui/Button'
 
 function getTokyoYyyyMmDd(now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -132,178 +136,133 @@ export function Dashboard() {
     await queryClient.invalidateQueries({ queryKey: ['attendance', year, month] })
   }
 
-  const summaryCardStyle: React.CSSProperties = {
-    border: '1px solid #e2e8f0',
-    borderRadius: 12,
-    padding: 12,
-    background: 'linear-gradient(135deg, rgba(248,250,252,0.9), rgba(255,255,255,0.9))',
-  }
-
-  const summaryValueStyle: React.CSSProperties = {
-    fontSize: 22,
-    fontWeight: 700,
-    color: '#0f172a',
-  }
-
-  const summaryLabelStyle: React.CSSProperties = {
-    fontSize: 12,
-    color: '#64748b',
-  }
-
-  const summarySubStyle: React.CSSProperties = {
-    fontSize: 12,
-    color: '#475569',
-    marginTop: 4,
-  }
-
   return (
-    <main className="app">
-      <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0 }}>ダッシュボード</h1>
-        <span style={{ fontSize: 14, opacity: 0.8 }}>最終更新: {lastUpdatedAt}</span>
-        <span style={{ flex: 1 }} />
-        <button type="button" onClick={onRefresh} disabled={attendanceQuery.isFetching}>
+    <main className="mx-auto w-full max-w-[1200px] p-4">
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h1 className="m-0 text-[24px] font-bold">ダッシュボード</h1>
+        <span className="text-[14px] opacity-80 JST">最終更新: {lastUpdatedAt}</span>
+        <span className="flex-1" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRefresh}
+          disabled={attendanceQuery.isFetching}
+        >
           {attendanceQuery.isFetching ? '更新中…' : '再読み込み'}
-        </button>
+        </Button>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 12,
-          marginTop: 16,
-        }}
-      >
-        <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今日</h2>
-
+      <div className="mt-6 grid grid-cols-1 items-start gap-6 md:grid-cols-3">
+        <Section title="今日" className="h-full">
           {attendanceQuery.isPending ? (
             <p>読み込み中...</p>
           ) : attendanceQuery.isError ? (
-            <p>読み込みに失敗しました</p>
+            <ErrorMessage title="読み込みに失敗しました" error={attendanceQuery.error} />
           ) : todayAttendance ? (
-            <div style={{ display: 'grid', gap: 6 }}>
-              <div>
-                日付: {todayAttendance.date}（{weekdayJa(todayAttendance.weekday)}）
+            <div className="grid gap-3 py-2">
+              <div className="text-[16px] font-bold">
+                {todayAttendance.date}（{weekdayJa(todayAttendance.weekday)}）
               </div>
-              <div>出勤: {todayAttendance.start ?? '—'}</div>
-              <div>退勤: {todayAttendance.end ?? '—'}</div>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between border-b border-[#8882] pb-1">
+                  <span className="opacity-60">出勤</span>
+                  <span className="font-mono text-[18px]">{todayAttendance.start ?? '—'}</span>
+                </div>
+                <div className="flex justify-between border-b border-[#8882] pb-1">
+                  <span className="opacity-60">退勤</span>
+                  <span className="font-mono text-[18px]">{todayAttendance.end ?? '—'}</span>
+                </div>
+              </div>
+              <div className="mt-2">
+                <Link to="/punch">
+                  <Button variant="primary" size="sm" className="w-full">
+                    打刻画面へ
+                  </Button>
+                </Link>
+              </div>
             </div>
           ) : (
             <p>今日の勤怠が見つかりませんでした。</p>
           )}
-        </section>
+        </Section>
 
-        <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>今月サマリ</h2>
-
+        <Section title="今月サマリ" className="h-full">
           {attendanceQuery.isPending ? (
             <p>読み込み中...</p>
           ) : attendanceQuery.isError ? (
-            <p>読み込みに失敗しました</p>
+            <ErrorMessage title="読み込みに失敗しました" error={attendanceQuery.error} />
           ) : (
-            <div style={{ display: 'grid', gap: 12 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: 8,
-                  fontSize: 13,
-                  color: '#475569',
-                }}
-              >
-                <div>
-                  対象: {year}年{month}月
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>法定休日: 日曜日</span>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>祝日: Google Calendar</span>
-                </div>
+            <div className="grid gap-4">
+              <div className="text-[13px] text-[#475569]">
+                対象: {year}年{month}月
               </div>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: 10,
-                }}
-              >
-                <div style={summaryCardStyle}>
-                  <div style={summaryLabelStyle}>実出勤日</div>
-                  <div style={summaryValueStyle}>{monthSummary.totalAttendedCount}日</div>
-                  <div style={summarySubStyle}>
-                    平日 {monthSummary.businessAttendedCount} / 休日 {monthSummary.holidayAttendedCount}
-                  </div>
-                </div>
-                <div style={summaryCardStyle}>
-                  <div style={summaryLabelStyle}>総労働時間</div>
-                  <div style={summaryValueStyle}>{formatMinutes(monthSummary.totalMinutes)}</div>
-                  <div style={summarySubStyle}>
-                    平日 {formatMinutes(monthSummary.businessMinutes)} / 休日 {formatMinutes(monthSummary.holidayMinutes)}
-                  </div>
-                </div>
-                <div style={summaryCardStyle}>
-                  <div style={summaryLabelStyle}>出勤日数（平日）</div>
-                  <div style={summaryValueStyle}>
-                    {monthSummary.businessAttendedCount} / {monthSummary.businessDayCount}
-                  </div>
-                  <div style={summarySubStyle}>平日総日数に対する出勤日数</div>
-                </div>
-                <div style={summaryCardStyle}>
-                  <div style={summaryLabelStyle}>出勤日数（休日）</div>
-                  <div style={summaryValueStyle}>
-                    {monthSummary.holidayAttendedCount} / {monthSummary.holidayCount}
-                  </div>
-                  <div style={summarySubStyle}>土日祝の出勤日数</div>
-                </div>
+              <div className="grid grid-cols-1 gap-2.5">
+                <StatsCard
+                  label="実出勤日"
+                  value={`${monthSummary.totalAttendedCount}日`}
+                  subtext={`平日 ${monthSummary.businessAttendedCount} / 休日 ${monthSummary.holidayAttendedCount}`}
+                />
+                <StatsCard
+                  label="総労働時間"
+                  value={formatMinutes(monthSummary.totalMinutes)}
+                  subtext={`平日 ${formatMinutes(monthSummary.businessMinutes)} / 休日 ${formatMinutes(monthSummary.holidayMinutes)}`}
+                />
               </div>
 
-              {workRuleQuery.isError ? (
-                <div style={{ color: '#b00', fontSize: 12 }}>
-                  勤務ルールの読み込みに失敗しました（デフォルト値で集計）。
-                  SharePoint の `VITE_SP_WORK_RULE_LIST_ID` とリスト列を確認してください。
-                </div>
-              ) : null}
-
-              <div style={{ display: 'grid', gap: 6, fontSize: 13, color: '#0f172a' }}>
+              <div className="text-[12px] leading-relaxed text-[#0f172a]">
+                <div className="font-bold opacity-60">勤務ルール</div>
                 <div>
-                  勤務ルール: 所定 {formatMinutes(monthSummary.scheduledDailyMinutes)} / 休憩 {monthSummary.breakMinutes}分 / 丸め{' '}
-                  {formatRoundingLabel({
+                  所定 {formatMinutes(monthSummary.scheduledDailyMinutes)} / 休憩 {monthSummary.breakMinutes}分
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span>丸め: {formatRoundingLabel({
                     unit: monthSummary.roundingUnitMinutes,
                     start: monthSummary.roundStart,
                     end: monthSummary.roundEnd,
-                  })}
-                  （<Link to="/settings/work-rule">変更</Link>）
+                  })}</span>
+                  <Link to="/settings/work-rule" className="text-[#2563eb] hover:underline">変更</Link>
                 </div>
               </div>
 
-              {holidaysQuery.isError ? (
-                <div style={{ color: '#b00', fontSize: 12 }}>
-                  祝日カレンダーの読み込みに失敗しました（祝日判定なしで表示）。
-                  `VITE_GCAL_HOLIDAY_CALENDAR_ID` の設定が正しいか確認してください。
-                </div>
-              ) : null}
+              {workRuleQuery.isError && (
+                <ErrorMessage title="勤務ルールの読み込み不備">
+                  デフォルト値を使用中。設定を確認してください。
+                </ErrorMessage>
+              )}
             </div>
           )}
-        </section>
+        </Section>
 
-        <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>クイックリンク</h2>
-          <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
+        <Section title="クイックリンク" className="h-full font-bold">
+          <ul className="m-0 grid gap-1 pl-0 list-none">
             <li>
-              <Link to="/punch">打刻へ</Link>
+              <Link to="/punch" className="flex items-center rounded-md p-2 transition-colors hover:bg-[#8881]">
+                <span className="mr-2">🕒</span> 打刻画面
+              </Link>
             </li>
             <li>
-              <Link to="/attendance">勤怠一覧へ</Link>
+              <Link to="/attendance" className="flex items-center rounded-md p-2 transition-colors hover:bg-[#8881]">
+                <span className="mr-2">📅</span> 勤怠一覧
+              </Link>
             </li>
             <li>
-              <Link to="/about">Aboutへ</Link>
+              <Link to="/reports" className="flex items-center rounded-md p-2 transition-colors hover:bg-[#8881]">
+                <span className="mr-2">📄</span> 勤務表出力
+              </Link>
+            </li>
+            <li className="mt-2 border-t border-[#8882] pt-2">
+              <Link to="/settings/work-rule" className="flex items-center rounded-md p-2 transition-colors hover:bg-[#8881]">
+                <span className="mr-2">⚙️</span> 勤務ルール設定
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="flex items-center rounded-md p-2 transition-colors hover:bg-[#8881]">
+                <span className="mr-2">ℹ️</span> About
+              </Link>
             </li>
           </ul>
-        </section>
+        </Section>
       </div>
     </main>
   )

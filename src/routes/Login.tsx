@@ -6,6 +6,9 @@ import {
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getLoginScopes } from '../auth/msalConfig'
+import { Button } from '../components/ui/Button'
+import { Section } from '../components/ui/Section'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 
 export function Login() {
   const { instance } = useMsal()
@@ -69,34 +72,42 @@ export function Login() {
   }
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4 text-center">
       <h1>ログイン</h1>
 
-      {errorMessage ? <p style={{ maxWidth: 560 }}>{errorMessage}</p> : null}
-
-      {isAuthenticated ? (
-        <>
-          <p>ログイン済みです。</p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <button type="button" onClick={onAcquireToken}>
-              トークン取得（silent優先）
-            </button>
-            <button type="button" onClick={onLogout}>
-              ログアウト
-            </button>
-          </div>
-          <p style={{ marginTop: 16 }}>
-            <Link to="/">Homeへ</Link>
-          </p>
-        </>
-      ) : (
-        <>
-          <p>Microsoftアカウントでログインしてください。</p>
-          <button type="button" onClick={onLogin}>
-            ログイン
-          </button>
-        </>
+      {errorMessage && (
+        <div className="mx-auto max-w-[560px]">
+          <ErrorMessage title="認証エラー" message={errorMessage} />
+        </div>
       )}
+
+      <Section className="mx-auto mt-6 max-w-[480px] py-10">
+        {isAuthenticated ? (
+          <>
+            <p className="mb-6 font-bold text-[#070]">ログイン済みです。</p>
+            <div className="flex flex-col gap-3">
+              <Button onClick={onAcquireToken}>
+                トークン取得テスト
+              </Button>
+              <Button variant="ghost" onClick={onLogout}>
+                ログアウト
+              </Button>
+            </div>
+            <p className="mt-8">
+              <Link to="/" className="text-[#2563eb] hover:underline">ダッシュボードへ</Link>
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mb-6 text-[18px]">
+              勤怠管理システムを利用するには、<br /> Microsoft アカウントでログインしてください。
+            </p>
+            <Button onClick={onLogin} className="w-full max-w-[240px] py-4 text-[18px]">
+              ログイン
+            </Button>
+          </>
+        )}
+      </Section>
     </main>
   )
 }

@@ -3,6 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { weekdayJa, weekdayUtc } from '../lib/tokyoDate'
 import { createPunch, listMyPunchesForDate, type PunchType } from '../lib/graph/punches'
 import { GraphRequestError } from '../lib/graph/graphClient'
+import { Section } from '../components/ui/Section'
+import { Button } from '../components/ui/Button'
+import { TextArea } from '../components/ui/TextArea'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 
 function getTokyoNowParts(now: Date = new Date()): {
   date: string
@@ -109,80 +113,72 @@ export function Punch() {
   }, [createPunchMutation.error])
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>打刻</h1>
-      <p style={{ marginTop: 4, opacity: 0.8 }}>※SharePoint リストへ登録します（設定が必要）</p>
+      <p className="mt-1 opacity-80">※SharePoint リストへ登録します（設定が必要）</p>
 
       {punchesQuery.isError ? (
-        <p style={{ color: '#b00' }}>打刻の読み込みに失敗しました: {punchesErrorMessage}</p>
+        <ErrorMessage className="mb-2">打刻の読み込みに失敗しました: {punchesErrorMessage}</ErrorMessage>
       ) : null}
 
       {createPunchMutation.isError ? (
-        <p style={{ color: '#b00' }}>打刻に失敗しました: {createErrorMessage}</p>
+        <ErrorMessage className="mb-2">打刻に失敗しました: {createErrorMessage}</ErrorMessage>
       ) : null}
 
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 12,
-          marginTop: 16,
-        }}
-      >
-        <div style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>現在時刻</h2>
-          <div style={{ fontSize: 18, fontWeight: 600 }}>
+      <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+        <Section title="現在時刻">
+          <div className="text-[18px] font-semibold">
             {now.date}（{weekdayJa(now.weekday)}）
           </div>
-          <div style={{ fontSize: 32, fontWeight: 700, letterSpacing: 1 }}>{now.time}</div>
-          <p style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>Asia/Tokyo</p>
-        </div>
+          <div className="text-[32px] font-bold tracking-[1px]">{now.time}</div>
+          <p className="mt-2 text-[12px] opacity-70">Asia/Tokyo</p>
+        </Section>
 
-        <div style={{ border: '1px solid #8883', borderRadius: 12, padding: 12 }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>本日の打刻</h2>
-          <div style={{ display: 'grid', gap: 6 }}>
+        <Section title="本日の打刻">
+          <div className="grid gap-1.5">
             <div>出勤: {startRecord?.time ?? '—'}</div>
             <div>退勤: {endRecord?.time ?? '—'}</div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <button
-              type="button"
+          <div className="mt-3 flex flex-wrap gap-4">
+            <Button
+              variant="punch"
+              size="punch"
               onClick={() => onPunch('start')}
               disabled={!canPunchStart || createPunchMutation.isPending}
             >
-              出勤打刻
-            </button>
-            <button
-              type="button"
+              出勤
+            </Button>
+            <Button
+              variant="punch"
+              size="punch"
               onClick={() => onPunch('end')}
               disabled={!canPunchEnd || createPunchMutation.isPending}
             >
-              退勤打刻
-            </button>
+              退勤
+            </Button>
           </div>
 
-          <label style={{ display: 'grid', gap: 6, marginTop: 12 }}>
-            <span>備考</span>
-            <textarea
+          <label className="mt-4 grid gap-1.5 ">
+            <span className="text-sm font-medium">備考</span>
+            <TextArea
               rows={3}
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="遅刻・直行直帰などのメモ"
-              style={{ resize: 'vertical', padding: 8 }}
+              className="resize-y"
             />
           </label>
-        </div>
-      </section>
+        </Section>
+      </div>
 
-      <section style={{ marginTop: 24 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>打刻履歴</h2>
+      <Section title="打刻履歴" className="mt-6">
         {punchesQuery.isPending ? (
           <p>読み込み中...</p>
         ) : (punchesQuery.data?.length ?? 0) === 0 ? (
           <p>まだ打刻がありません。</p>
         ) : (
-          <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
+          <ul className="m-0 grid gap-1.5 pl-[18px]">
             {(punchesQuery.data ?? []).map((record) => (
               <li key={record.id}>
                 {punchLabel[record.type]}: {record.time}
@@ -190,7 +186,7 @@ export function Punch() {
             ))}
           </ul>
         )}
-      </section>
+      </Section>
     </main>
   )
 }

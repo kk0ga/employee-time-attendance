@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { listLists, resolveSiteByUrl, searchSites, type SharePointList } from '../lib/graph/sharepointDiscovery'
-import { GraphRequestError } from '../lib/graph/graphClient'
+import { Section } from '../components/ui/Section'
+import { Input } from '../components/ui/Input'
+import { Button } from '../components/ui/Button'
+import { Table, Th, Td } from '../components/ui/Table'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 
 function normalizeUrl(input: string): string {
   const trimmed = input.trim()
@@ -60,173 +64,181 @@ export function SharePointSetup() {
     )
   }, [selectedSiteId])
 
-  const resolveErrorMessage = useMemo(() => {
-    const err = resolveSiteMutation.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [resolveSiteMutation.error])
-
-  const listsErrorMessage = useMemo(() => {
-    const err = listsQuery.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [listsQuery.error])
-
   return (
-    <main className="app">
-      <h1>SharePoint 設定（siteId / listId 取得）</h1>
-      <p style={{ marginTop: 4, opacity: 0.8 }}>
+    <main className="mx-auto w-full max-w-[960px] p-4">
+      <h1>SharePoint 設定</h1>
+      <p className="mt-1 opacity-80">
         ※この画面はIDを「表示してコピーする」用途です（.env へ自動保存はできません）
       </p>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>1) siteId を取得（URLから）</h2>
-
-        <label style={{ display: 'grid', gap: 6 }}>
+      <Section title="1) siteId を取得（URLから）" className="mt-4">
+        <label className="grid gap-1.5 font-bold">
           <span>サイトURL</span>
-          <input
+          <Input
             value={siteUrl}
             onChange={(e) => setSiteUrl(e.target.value)}
             placeholder="例: https://contoso.sharepoint.com/sites/Attendance"
-            style={{ padding: 8 }}
           />
         </label>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-          <button type="button" onClick={() => resolveSiteMutation.mutate()} disabled={resolveSiteMutation.isPending}>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            onClick={() => resolveSiteMutation.mutate()}
+            disabled={resolveSiteMutation.isPending}
+          >
             {resolveSiteMutation.isPending ? '取得中…' : 'siteId を取得'}
-          </button>
+          </Button>
         </div>
 
-        {resolveSiteMutation.isError ? (
-          <p style={{ color: '#b00', marginTop: 8 }}>取得に失敗しました: {resolveErrorMessage}</p>
-        ) : null}
+        {resolveSiteMutation.isError && (
+          <ErrorMessage
+            title="取得に失敗しました"
+            error={resolveSiteMutation.error}
+          />
+        )}
 
         {resolveSiteMutation.data ? (
-          <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+          <div className="mt-4 grid gap-1.5 rounded-[8px] border border-[#8883] p-3">
             <div>
               <strong>siteId:</strong> {resolveSiteMutation.data.id}{' '}
-              <button type="button" onClick={() => onCopy(resolveSiteMutation.data!.id)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onCopy(resolveSiteMutation.data!.id)}
+              >
                 コピー
-              </button>
+              </Button>
             </div>
             {resolveSiteMutation.data.webUrl ? <div>webUrl: {resolveSiteMutation.data.webUrl}</div> : null}
           </div>
         ) : null}
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>代替) サイト検索（名前/キーワード）</h2>
-
-        <label style={{ display: 'grid', gap: 6 }}>
+      <Section title="代替) サイト検索（名前/キーワード）" className="mt-4">
+        <label className="grid gap-1.5 font-bold">
           <span>検索キーワード（2文字以上）</span>
-          <input
+          <Input
             value={siteSearch}
             onChange={(e) => setSiteSearch(e.target.value)}
             placeholder="例: Attendance"
-            style={{ padding: 8 }}
           />
         </label>
 
-        {sitesQuery.isFetching ? <p style={{ marginTop: 8 }}>検索中...</p> : null}
-        {sitesQuery.isError ? <p style={{ marginTop: 8, color: '#b00' }}>検索に失敗しました。</p> : null}
+        {sitesQuery.isFetching ? <p className="mt-2">検索中...</p> : null}
+        {sitesQuery.isError && (
+          <ErrorMessage
+            title="検索に失敗しました"
+            error={sitesQuery.error}
+          />
+        )}
 
         {(sitesQuery.data?.length ?? 0) > 0 ? (
-          <ul style={{ marginTop: 10, paddingLeft: 18, display: 'grid', gap: 6 }}>
+          <ul className="mt-4 grid gap-2">
             {(sitesQuery.data ?? []).slice(0, 20).map((s) => (
-              <li key={s.id}>
-                <button type="button" onClick={() => setSelectedSiteId(s.id)}>
-                  このサイトを選択
-                </button>{' '}
-                {s.webUrl ?? s.name ?? '(no name)'}
-                <div style={{ fontSize: 12, opacity: 0.8 }}>siteId: {s.id}</div>
+              <li key={s.id} className="flex items-start gap-2 rounded border border-[#8882] p-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedSiteId(s.id)}
+                >
+                  選択
+                </Button>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-bold">
+                    {s.name || '(no name)'}
+                  </div>
+                  <div className="truncate text-[12px] opacity-80">{s.webUrl}</div>
+                  <div className="truncate text-[11px] opacity-60">ID: {s.id}</div>
+                </div>
               </li>
             ))}
           </ul>
         ) : null}
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>2) listId を取得（サイト内のリスト一覧）</h2>
-
-        <div style={{ display: 'grid', gap: 6 }}>
-          <div>
+      <Section title="2) listId を取得（サイト内のリスト一覧）" className="mt-4">
+        <div className="grid gap-2.5">
+          <div className="rounded-[8px] bg-[#0001] p-2">
             <strong>選択中の siteId:</strong> {selectedSiteId || '（未選択）'}{' '}
             {selectedSiteId ? (
-              <button type="button" onClick={() => onCopy(selectedSiteId)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onCopy(selectedSiteId)}
+              >
                 コピー
-              </button>
+              </Button>
             ) : null}
           </div>
 
-          <label style={{ display: 'grid', gap: 6 }}>
+          <label className="grid gap-1.5 font-bold">
             <span>リスト名フィルタ（任意）</span>
-            <input
+            <Input
               value={listNameFilter}
               onChange={(e) => setListNameFilter(e.target.value)}
               placeholder="例: Punch"
-              style={{ padding: 8 }}
               disabled={!selectedSiteId}
             />
           </label>
         </div>
 
-        {listsQuery.isPending ? <p style={{ marginTop: 8 }}>読み込み中...</p> : null}
-        {listsQuery.isError ? (
-          <p style={{ marginTop: 8, color: '#b00' }}>リスト一覧の取得に失敗しました: {listsErrorMessage}</p>
-        ) : null}
+        {listsQuery.isPending ? <p className="mt-2 text-center">読み込み中...</p> : null}
+        {listsQuery.isError && (
+          <ErrorMessage
+            title="リスト一覧の取得に失敗しました"
+            error={listsQuery.error}
+          />
+        )}
 
         {(filteredLists.length ?? 0) > 0 ? (
-          <table style={{ borderCollapse: 'collapse', width: 'min(960px, 100%)', marginTop: 10 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #8884', padding: '8px 10px' }}>displayName</th>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #8884', padding: '8px 10px' }}>id (listId)</th>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #8884', padding: '8px 10px' }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLists.map((l) => (
-                <tr key={l.id}>
-                  <td style={{ borderBottom: '1px solid #8882', padding: '8px 10px' }}>{l.displayName ?? l.name ?? '-'}</td>
-                  <td style={{ borderBottom: '1px solid #8882', padding: '8px 10px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' }}>
-                    {l.id}
-                  </td>
-                  <td style={{ borderBottom: '1px solid #8882', padding: '8px 10px' }}>
-                    <button type="button" onClick={() => onCopy(l.id)}>
-                      listId をコピー
-                    </button>
-                  </td>
+          <div className="mt-4 overflow-hidden rounded-[8px] border border-[#8883]">
+            <Table className="w-full">
+              <thead>
+                <tr>
+                  <Th>displayName</Th>
+                  <Th>id (listId)</Th>
+                  <Th>操作</Th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredLists.map((l) => (
+                  <tr key={l.id}>
+                    <Td>{l.displayName || l.name || '-'}</Td>
+                    <Td className="font-mono text-[11px]">{l.id}</Td>
+                    <Td>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onCopy(l.id)}
+                      >
+                        コピー
+                      </Button>
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         ) : null}
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>.env へ貼り付け</h2>
+      <Section title=".env へ貼り付け" className="mt-4">
         {envSnippet ? (
-          <div style={{ display: 'grid', gap: 8 }}>
-            <pre style={{ margin: 0, padding: 12, background: '#00000008', borderRadius: 8, overflowX: 'auto' }}>
+          <div className="grid gap-2.5">
+            <pre className="overflow-x-auto rounded-[8px] bg-[#0001] p-3 text-[13px]">
               {envSnippet}
             </pre>
-            <button type="button" onClick={() => onCopy(envSnippet)}>
+            <Button
+              variant="primary"
+              onClick={() => onCopy(envSnippet)}
+            >
               まとめてコピー
-            </button>
+            </Button>
           </div>
         ) : (
           <p>siteId を取得/選択すると表示されます。</p>
         )}
-      </section>
+      </Section>
     </main>
   )
 }

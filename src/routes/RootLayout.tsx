@@ -1,6 +1,7 @@
 import { Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
+import { Button } from '../components/ui/Button'
 
 export function RootLayout() {
   const isAuthenticated = useIsAuthenticated()
@@ -10,44 +11,52 @@ export function RootLayout() {
     await instance.logoutRedirect()
   }
 
+  const activeClassName = 'font-bold underline'
+
   return (
-    <div style={{ padding: 16 }}>
-      <nav style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link to="/dashboard" activeProps={{ style: { fontWeight: 700 } }}>
-          ダッシュボード
-        </Link>
-        <Link to="/attendance" activeProps={{ style: { fontWeight: 700 } }}>
-          勤怠一覧
-        </Link>
-        <Link to="/punch" activeProps={{ style: { fontWeight: 700 } }}>
-          打刻
-        </Link>
-        <Link to="/settings/sharepoint" activeProps={{ style: { fontWeight: 700 } }}>
-          SharePoint設定
-        </Link>
-        <Link to="/settings/work-rule" activeProps={{ style: { fontWeight: 700 } }}>
-          勤務ルール
-        </Link>
-        <Link to="/about" activeProps={{ style: { fontWeight: 700 } }}>
-          About
-        </Link>
-
-        <span style={{ flex: 1 }} />
-
-        {isAuthenticated ? (
-          <button type="button" onClick={onLogout}>
-            ログアウト
-          </button>
-        ) : (
-          <Link to="/login" activeProps={{ style: { fontWeight: 700 } }}>
-            ログイン
+    <div className="flex min-h-screen flex-col bg-[#fdfdfd] text-[#0f172a]">
+      <header className="sticky top-0 z-50 border-b border-[#8883] bg-[#ffffffcc] px-4 py-3 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-2">
+          <Link to="/dashboard" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            ダッシュボード
           </Link>
-        )}
-      </nav>
+          <Link to="/attendance" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            勤怠一覧
+          </Link>
+          <Link to="/punch" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            打刻
+          </Link>
+          <Link to="/reports" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            勤務表出力
+          </Link>
+          <Link to="/settings/work-rule" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            勤務ルール
+          </Link>
+          <Link to="/about" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+            About
+          </Link>
 
-      <hr style={{ margin: '16px 0' }} />
+          <span className="flex-1" />
 
-      <Outlet />
+          {isAuthenticated ? (
+            <Button variant="ghost" size="sm" onClick={onLogout}>
+              ログアウト
+            </Button>
+          ) : (
+            <Link to="/login" activeProps={{ className: activeClassName }} className="hover:opacity-70">
+              ログイン
+            </Link>
+          )}
+        </nav>
+      </header>
+
+      <div className="flex-1">
+        <Outlet />
+      </div>
+
+      <footer className="border-t border-[#8882] px-4 py-4 text-center text-[12px] opacity-60">
+        &copy; 2024 Employee Time Attendance System
+      </footer>
 
       <TanStackRouterDevtools position="bottom-right" />
     </div>

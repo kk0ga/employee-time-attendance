@@ -10,6 +10,10 @@ import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { fetchMyWorkRule } from '../lib/workRuleRepo'
 import { calculateWorkedMinutes } from '../lib/workTime'
 import logoUrl from '../assets/company-logo.svg'
+import { Section } from '../components/ui/Section'
+import { Input } from '../components/ui/Input'
+import { Button } from '../components/ui/Button'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
 
 function toYearMonthValue(params: { year: number; month: number }): string {
   return `${params.year}-${String(params.month).padStart(2, '0')}`
@@ -213,44 +217,59 @@ export function Reports() {
   }
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>勤務表PDF出力</h1>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>対象月</h2>
-        <label style={{ display: 'grid', gap: 6, maxWidth: 240 }}>
+      <Section title="対象月" className="mt-4">
+        <label className="grid max-w-[240px] gap-1.5">
           <span>年月（YYYY-MM）</span>
-          <input
+          <Input
             type="month"
             value={yearMonth}
             onChange={(event) => setYearMonth(event.target.value)}
           />
         </label>
 
-        {attendanceQuery.isError ? <p style={{ color: '#b00' }}>勤怠データの取得に失敗しました。</p> : null}
-        {workRuleQuery.isError ? (
-          <p style={{ color: '#b00' }}>勤務ルールの取得に失敗しました（デフォルト値で出力）。</p>
-        ) : null}
-        {holidaysQuery.isError ? (
-          <p style={{ color: '#b00' }}>祝日取得に失敗しました（祝日判定なしで出力）。</p>
-        ) : null}
+        {attendanceQuery.isError && (
+          <ErrorMessage
+            title="勤怠データの取得に失敗しました"
+            error={attendanceQuery.error}
+            onRetry={() => attendanceQuery.refetch()}
+          />
+        )}
+        {workRuleQuery.isError && (
+          <ErrorMessage
+            title="勤務ルールの取得に失敗しました"
+            message="デフォルト値で出力します。"
+            error={workRuleQuery.error}
+          />
+        )}
+        {holidaysQuery.isError && (
+          <ErrorMessage
+            title="祝日取得に失敗しました"
+            message="祝日判定なしで出力します。"
+            error={holidaysQuery.error}
+          />
+        )}
 
-        <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button type="button" onClick={onGeneratePdf} disabled={!canGenerate}>
+        <div className="mt-4 flex flex-wrap items-center gap-2.5">
+          <Button
+            onClick={onGeneratePdf}
+            disabled={!canGenerate}
+          >
             PDF出力（印刷）
-          </button>
-          <span style={{ fontSize: 12, color: '#475569' }}>
+          </Button>
+          <span className="text-[12px] text-[#475569]">
             ※ ブラウザの印刷ダイアログから PDF として保存してください
           </span>
         </div>
-      </section>
+      </Section>
 
-      <section style={{ border: '1px solid #8883', borderRadius: 12, padding: 12, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>出力プレビュー（抜粋）</h2>
+      <Section title="出力プレビュー（抜粋）" className="mt-4">
         {attendanceQuery.isPending ? (
           <p>読み込み中...</p>
         ) : attendanceQuery.data ? (
-          <div style={{ display: 'grid', gap: 6, fontSize: 13 }}>
+          <div className="grid gap-1.5 text-[13px]">
             <div>
               対象: {attendanceQuery.data.year}年{attendanceQuery.data.month}月
             </div>
@@ -265,7 +284,7 @@ export function Reports() {
         ) : (
           <p>データがありません。</p>
         )}
-      </section>
+      </Section>
     </main>
   )
 }

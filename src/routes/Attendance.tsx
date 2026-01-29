@@ -12,8 +12,13 @@ import { fetchAttendanceMonth, updateAttendanceCategory } from '../lib/attendanc
 import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { createPunch, type PunchType } from '../lib/graph/punches'
-import { GraphRequestError } from '../lib/graph/graphClient'
 import { fetchWorkCategories } from '../lib/workCategoryRepo'
+import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
+import { Select } from '../components/ui/Select'
+import { Table, Td, Th } from '../components/ui/Table'
+import { Section } from '../components/ui/Section'
 
 function normalizeTime(value: string): string {
   const parts = value.split(':')
@@ -96,26 +101,6 @@ export function Attendance() {
     },
   })
 
-  const createErrorMessage = useMemo(() => {
-    const err = createPunchMutation.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [createPunchMutation.error])
-
-  const updateCategoryErrorMessage = useMemo(() => {
-    const err = updateCategoryMutation.error
-    if (!err) return null
-    if (err instanceof GraphRequestError) {
-      return `${err.message} (status=${err.status}${err.code ? `, code=${err.code}` : ''})`
-    }
-    if (err instanceof Error) return err.message
-    return '不明なエラー'
-  }, [updateCategoryMutation.error])
-
   const setEditValue = useMemo(() => {
     return (date: string, type: PunchType, value: string) => {
       setEditTimes((prev) => ({
@@ -141,7 +126,7 @@ export function Attendance() {
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
-      style={{ display: 'block' }}
+      className="block"
     >
       <path
         d="M4 17.25V20h2.75L17.81 8.94l-2.75-2.75L4 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-1.5-1.5a1.003 1.003 0 0 0-1.42 0l-1.13 1.13 2.75 2.75 1.3-1.3Z"
@@ -176,7 +161,7 @@ export function Attendance() {
           const options = workCategoriesQuery.data ?? []
 
           return (
-            <select
+            <Select
               value={value}
               onChange={(event) => {
                 const selected = event.target.value
@@ -187,7 +172,6 @@ export function Attendance() {
                 })
               }}
               disabled={disabled}
-              style={{ padding: '4px 6px' }}
             >
               <option value="">未設定</option>
               {options.map((option) => (
@@ -195,7 +179,7 @@ export function Attendance() {
                   {option}
                 </option>
               ))}
-            </select>
+            </Select>
           )
         },
       },
@@ -208,15 +192,15 @@ export function Attendance() {
           const canSubmitStart = !!startValue && !createPunchMutation.isPending
 
           return (
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-              <input
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Input
                 type="time"
                 value={startValue}
                 onChange={(event) => setEditValue(record.date, 'start', event.target.value)}
-                style={{ padding: '4px 6px' }}
               />
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() =>
                   createPunchMutation.mutateAsync({
                     date: record.date,
@@ -227,10 +211,10 @@ export function Attendance() {
                 disabled={!canSubmitStart}
                 aria-label="出勤時刻を修正"
                 title="出勤時刻を修正"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px' }}
+                className="min-w-0 px-1.5"
               >
                 {editIcon}
-              </button>
+              </Button>
             </div>
           )
         },
@@ -244,15 +228,15 @@ export function Attendance() {
           const canSubmitEnd = !!endValue && !createPunchMutation.isPending
 
           return (
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-              <input
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Input
                 type="time"
                 value={endValue}
                 onChange={(event) => setEditValue(record.date, 'end', event.target.value)}
-                style={{ padding: '4px 6px' }}
               />
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() =>
                   createPunchMutation.mutateAsync({
                     date: record.date,
@@ -263,10 +247,10 @@ export function Attendance() {
                 disabled={!canSubmitEnd}
                 aria-label="退勤時刻を修正"
                 title="退勤時刻を修正"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px' }}
+                className="min-w-0 px-1.5"
               >
                 {editIcon}
-              </button>
+              </Button>
             </div>
           )
         },
@@ -291,94 +275,96 @@ export function Attendance() {
   })
 
   return (
-    <main className="app">
+    <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>勤怠一覧</h1>
-      <p>
+      <p className="mt-1 opacity-80">
         対象: {year}年{month}月（SharePoint）
       </p>
 
-      {createPunchMutation.isError ? (
-        <p style={{ color: '#b00' }}>修正打刻に失敗しました: {createErrorMessage}</p>
-      ) : null}
+      {createPunchMutation.isError && (
+        <ErrorMessage
+          title="修正打刻に失敗しました"
+          error={createPunchMutation.error}
+        />
+      )}
 
-      {updateCategoryMutation.isError ? (
-        <p style={{ color: '#b00' }}>
-          勤務区分の更新に失敗しました: {updateCategoryErrorMessage}
-        </p>
-      ) : null}
+      {updateCategoryMutation.isError && (
+        <ErrorMessage
+          title="勤務区分の更新に失敗しました"
+          error={updateCategoryMutation.error}
+        />
+      )}
 
-      {holidaysQuery.isError ? (
-        <p style={{ color: '#b00' }}>
-          祝日カレンダーの読み込みに失敗しました（`VITE_GCAL_HOLIDAY_CALENDAR_ID` を確認してください）
-        </p>
-      ) : null}
+      {holidaysQuery.isError && (
+        <ErrorMessage
+          title="祝日カレンダーの読み込みに失敗しました"
+          message="`VITE_GCAL_HOLIDAY_CALENDAR_ID` を確認してください。"
+          error={holidaysQuery.error}
+        />
+      )}
 
-      {workCategoriesQuery.isError ? (
-        <p style={{ color: '#b00' }}>勤務区分の取得に失敗しました。</p>
-      ) : null}
+      {workCategoriesQuery.isError && (
+        <ErrorMessage
+          title="勤務区分の取得に失敗しました"
+          error={workCategoriesQuery.error}
+        />
+      )}
 
       {attendanceQuery.isPending ? (
-        <p>読み込み中...</p>
+        <p className="mt-4">読み込み中...</p>
       ) : attendanceQuery.isError ? (
-        <p>読み込みに失敗しました</p>
+        <ErrorMessage
+          title="読み込みに失敗しました"
+          error={attendanceQuery.error}
+          onRetry={() => attendanceQuery.refetch()}
+        />
       ) : (
-        <table style={{ borderCollapse: 'collapse', width: 'min(720px, 100%)' }}>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    style={{
-                      textAlign: 'left',
-                      borderBottom: '1px solid #8884',
-                      padding: '8px 10px',
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => {
-              const record = row.original
-              const isToday = record.date === todayTokyo
-              const isSundayOrHoliday =
-                record.weekday === 0 || !!holidaysQuery.data?.[record.date]
-              const isSaturday = record.weekday === 6
-              const rowBackground = isSundayOrHoliday
-                ? '#fee2e2'
-                : isSaturday
-                  ? '#e0f2fe'
-                  : undefined
-              const rowStyle = isToday
-                ? { backgroundColor: '#fef9c3' }
-                : rowBackground
-                  ? { backgroundColor: rowBackground }
-                  : undefined
-
-              return (
-                <tr key={row.id} style={rowStyle}>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    style={{ borderBottom: '1px solid #8882', padding: '8px 10px' }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+        <Section className="mt-4 overflow-hidden !p-0">
+          <Table className="w-full">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Th key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </Th>
+                  ))}
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => {
+                const record = row.original
+                const isToday = record.date === todayTokyo
+                const isSundayOrHoliday =
+                  record.weekday === 0 || !!holidaysQuery.data?.[record.date]
+                const isSaturday = record.weekday === 6
+                const rowClassName = isToday
+                  ? 'bg-[#fef9c3]'
+                  : isSundayOrHoliday
+                    ? 'bg-[#fee2e2]'
+                    : isSaturday
+                      ? 'bg-[#e0f2fe]'
+                      : undefined
+
+                return (
+                  <tr key={row.id} className={rowClassName}>
+                    {row.getVisibleCells().map((cell) => (
+                      <Td key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </Td>
+                    ))}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </Table>
+        </Section>
       )}
     </main>
   )

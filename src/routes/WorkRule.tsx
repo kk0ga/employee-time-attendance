@@ -5,7 +5,13 @@ import { fetchMyWorkRule, saveMyWorkRule } from '../lib/workRuleRepo'
 import { Button } from '@/components/ui/button'
 import { Section } from '@/components/ui/Section'
 import { Input } from '@/components/ui/input'
-import { SelectNative as Select } from '@/components/ui/select-native'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 function clampInt(value: number, min: number, max: number): number {
@@ -122,13 +128,17 @@ function WorkRuleForm(props: {
             <span>出勤（開始）の丸め</span>
             <Select
               value={roundStart}
-              onChange={(e) => setRoundStart(toMode(e.target.value))}
-              className="w-[240px]"
+              onValueChange={(val) => setRoundStart(toMode(val))}
             >
-              <option value="none">なし</option>
-              <option value="floor">切り捨て</option>
-              <option value="ceil">切り上げ</option>
-              <option value="nearest">四捨五入</option>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">なし</SelectItem>
+                <SelectItem value="floor">切り捨て</SelectItem>
+                <SelectItem value="ceil">切り上げ</SelectItem>
+                <SelectItem value="nearest">四捨五入</SelectItem>
+              </SelectContent>
             </Select>
           </label>
 
@@ -136,13 +146,17 @@ function WorkRuleForm(props: {
             <span>退勤（終了）の丸め</span>
             <Select
               value={roundEnd}
-              onChange={(e) => setRoundEnd(toMode(e.target.value))}
-              className="w-[240px]"
+              onValueChange={(val) => setRoundEnd(toMode(val))}
             >
-              <option value="none">なし</option>
-              <option value="floor">切り捨て</option>
-              <option value="ceil">切り上げ</option>
-              <option value="nearest">四捨五入</option>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">なし</SelectItem>
+                <SelectItem value="floor">切り捨て</SelectItem>
+                <SelectItem value="ceil">切り上げ</SelectItem>
+                <SelectItem value="nearest">四捨五入</SelectItem>
+              </SelectContent>
             </Select>
           </label>
         </div>

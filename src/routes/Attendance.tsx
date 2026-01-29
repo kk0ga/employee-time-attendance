@@ -16,7 +16,13 @@ import { fetchWorkCategories } from '../lib/workCategoryRepo'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SelectNative as Select } from '@/components/ui/select-native'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Table, Td, Th } from '@/components/ui/table-compat'
 import { Section } from '@/components/ui/Section'
 
@@ -162,23 +168,28 @@ export function Attendance() {
 
           return (
             <Select
-              value={value}
-              onChange={(event) => {
-                const selected = event.target.value
-                setEditCategory(record.date, selected)
+              value={value || "unselected"}
+              onValueChange={(selected) => {
+                const finalValue = selected === "unselected" ? "" : selected
+                setEditCategory(record.date, finalValue)
                 updateCategoryMutation.mutateAsync({
                   date: record.date,
-                  workCategory: selected ? selected : null,
+                  workCategory: finalValue ? finalValue : null,
                 })
               }}
               disabled={disabled}
             >
-              <option value="">未設定</option>
-              {options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
+              <SelectTrigger className="h-9 w-[120px]">
+                <SelectValue placeholder="未設定" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unselected">未設定</SelectItem>
+                {options.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           )
         },
@@ -192,11 +203,12 @@ export function Attendance() {
           const canSubmitStart = !!startValue && !createPunchMutation.isPending
 
           return (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Input
                 type="time"
                 value={startValue}
                 onChange={(event) => setEditValue(record.date, 'start', event.target.value)}
+                className="h-9 w-[110px] px-2"
               />
               <Button
                 variant="ghost"
@@ -211,7 +223,7 @@ export function Attendance() {
                 disabled={!canSubmitStart}
                 aria-label="出勤時刻を修正"
                 title="出勤時刻を修正"
-                className="min-w-0 px-1.5"
+                className="h-9 w-9 min-w-0 p-0"
               >
                 {editIcon}
               </Button>
@@ -228,11 +240,12 @@ export function Attendance() {
           const canSubmitEnd = !!endValue && !createPunchMutation.isPending
 
           return (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Input
                 type="time"
                 value={endValue}
                 onChange={(event) => setEditValue(record.date, 'end', event.target.value)}
+                className="h-9 w-[110px] px-2"
               />
               <Button
                 variant="ghost"
@@ -247,7 +260,7 @@ export function Attendance() {
                 disabled={!canSubmitEnd}
                 aria-label="退勤時刻を修正"
                 title="退勤時刻を修正"
-                className="min-w-0 px-1.5"
+                className="h-9 w-9 min-w-0 p-0"
               >
                 {editIcon}
               </Button>

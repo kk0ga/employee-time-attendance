@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1 {
+    @apply m-0 text-[24px] font-bold;
+  }
+}
+
 :root {
   background-color: #f8fafc;
   color: #0f172a;

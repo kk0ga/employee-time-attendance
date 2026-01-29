@@ -139,7 +139,7 @@ export function Dashboard() {
   return (
     <main className="mx-auto w-full max-w-[1200px] p-4">
       <div className="flex flex-wrap items-baseline gap-3">
-        <h1 className="m-0 text-[24px] font-bold">ダッシュボード</h1>
+        <h1>ダッシュボード</h1>
         <span className="text-[14px] opacity-80 JST">最終更新: {lastUpdatedAt}</span>
         <span className="flex-1" />
         <Button

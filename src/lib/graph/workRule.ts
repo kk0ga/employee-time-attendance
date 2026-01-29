@@ -2,7 +2,6 @@ import { getSignedInAccount } from '../../auth/msalInstance'
 import { defaultWorkRule, type RoundingMode, type WorkRule } from '../../domain/workRule'
 import { graphFetch } from './graphClient'
 import { getSharePointSiteId, getWorkRuleListId } from './config'
-import { listListColumns, toColumnMap } from './listColumns'
 
 type GraphListItem = {
   id: string
@@ -120,43 +119,6 @@ export async function upsertMyWorkRule(rule: WorkRule): Promise<void> {
 
   const normalized = sanitizeWorkRule(rule)
 
-  const columns = await listListColumns({ siteId, listId })
-  const columnMap = toColumnMap(columns)
-
-  const normalizeChoice = (value: RoundingMode, columnName: string): string => {
-    const col = columnMap.get(columnName)
-    if (!col || col.type !== 'choice') return value
-
-    const choices = col.choices ?? []
-    if (choices.length === 0) return value
-
-    // if exact match exists, use it
-    if (choices.includes(value)) return value
-
-    const jpMap: Record<RoundingMode, string[]> = {
-      none: ['なし', '無', 'なし（丸めなし）'],
-      floor: ['切り捨て', '切捨て', '切り下げ', '切下げ'],
-      ceil: ['切り上げ', '切上げ'],
-      nearest: ['四捨五入'],
-    }
-
-    const candidates = jpMap[value] ?? []
-    const match = candidates.find((c) => choices.includes(c))
-    if (match) return match
-
-    throw new Error(
-      `${columnName} のChoice値が一致しません。許容値: ${choices.join(', ')}`,
-    )
-  }
-
-  const numberOrString = (value: number, columnName: string): number | string => {
-    const col = columnMap.get(columnName)
-    if (!col) return value
-    if (col.type === 'number') return value
-    if (col.type === 'text' || col.type === 'choice') return String(value)
-    return value
-  }
-
   const res = await graphFetch<ListItemsResponse>(
     `/sites/${siteId}/lists/${listId}/items` +
       `?$top=200&$orderby=createdDateTime desc&$expand=fields($select=UserObjectId)`,
@@ -168,11 +130,11 @@ export async function upsertMyWorkRule(rule: WorkRule): Promise<void> {
 
   const fields: Record<string, unknown> = {
     UserObjectId: account.localAccountId,
-    ScheduledDailyMinutes: numberOrString(normalized.scheduledDailyMinutes, 'ScheduledDailyMinutes'),
-    BreakMinutes: numberOrString(normalized.breakMinutes, 'BreakMinutes'),
-    RoundingUnitMinutes: numberOrString(normalized.roundingUnitMinutes, 'RoundingUnitMinutes'),
-    RoundStart: normalizeChoice(normalized.roundStart, 'RoundStart'),
-    RoundEnd: normalizeChoice(normalized.roundEnd, 'RoundEnd'),
+    ScheduledDailyMinutes: normalized.scheduledDailyMinutes,
+    BreakMinutes: normalized.breakMinutes,
+    RoundingUnitMinutes: normalized.roundingUnitMinutes,
+    RoundStart: normalized.roundStart,
+    RoundEnd: normalized.roundEnd,
   }
 
   if (existing?.id) {

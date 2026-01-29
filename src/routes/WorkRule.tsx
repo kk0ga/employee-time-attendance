@@ -1,26 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { RoundingMode, WorkRule } from '../domain/workRule'
-import { fetchMyWorkRule, fetchWorkRuleListColumns, saveMyWorkRule } from '../lib/workRuleRepo'
-import type { ListColumnInfo } from '../lib/graph/listColumns'
+import { fetchMyWorkRule, saveMyWorkRule } from '../lib/workRuleRepo'
 import { Button } from '../components/ui/Button'
 import { Section } from '../components/ui/Section'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { ErrorMessage } from '../components/ui/ErrorMessage'
-
-const REQUIRED_WORK_RULE_COLUMNS = [
-  'UserObjectId',
-  'ScheduledDailyMinutes',
-  'BreakMinutes',
-  'RoundingUnitMinutes',
-  'RoundStart',
-  'RoundEnd',
-] as const
-
-function findColumn(columns: ListColumnInfo[] | undefined, name: string): ListColumnInfo | undefined {
-  return (columns ?? []).find((c) => c.name === name)
-}
 
 function clampInt(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min
@@ -181,21 +167,8 @@ export function WorkRuleSettings() {
     retry: false,
   })
 
-  const columnsQuery = useQuery({
-    queryKey: ['work-rule', 'columns'],
-    queryFn: () => fetchWorkRuleListColumns(),
-    retry: false,
-  })
-
   const saveMutation = useMutation({
     mutationFn: async (rule: WorkRule) => {
-      const names = new Set((columnsQuery.data ?? []).map((c) => c.name))
-      const missing = REQUIRED_WORK_RULE_COLUMNS.filter((c) => !names.has(c))
-      if (missing.length > 0) {
-        throw new Error(
-          `SharePointの勤務ルールリストに必要な列がありません: ${missing.join(', ')}`,
-        )
-      }
       await saveMyWorkRule(rule)
     },
   })
@@ -204,12 +177,6 @@ export function WorkRuleSettings() {
     await saveMutation.mutateAsync(rule)
     await ruleQuery.refetch()
   }
-
-  const columnsStatus = useMemo(() => {
-    const names = new Set((columnsQuery.data ?? []).map((c) => c.name))
-    const missing = REQUIRED_WORK_RULE_COLUMNS.filter((c) => !names.has(c))
-    return { missing, total: REQUIRED_WORK_RULE_COLUMNS.length }
-  }, [columnsQuery.data])
 
   return (
     <main className="mx-auto w-full max-w-[960px] p-4">
@@ -237,54 +204,6 @@ export function WorkRuleSettings() {
 
       {saveMutation.isSuccess && <p className="mt-4 text-[#070]">保存しました。</p>}
 
-      <Section title="SharePoint リスト列チェック">
-        {columnsQuery.isPending ? <p>確認中...</p> : null}
-        {columnsQuery.isError ? (
-          <ErrorMessage
-            title="列一覧の取得に失敗しました"
-            message="`VITE_SP_WORK_RULE_LIST_ID` が正しいか、権限があるか確認してください。"
-            error={columnsQuery.error}
-          />
-        ) : null}
-        {columnsQuery.data ? (
-          <div className="grid gap-1.5">
-            <div>
-              必須列: {columnsStatus.total}件 / 不足: {columnsStatus.missing.length}件
-            </div>
-            {columnsStatus.missing.length > 0 ? (
-              <div className="text-[#b00]">
-                不足列（内部名）: {columnsStatus.missing.join(', ')}
-                <div className="mt-1 text-[12px] opacity-80">
-                  ※列名は「内部名（Internal name）」が一致している必要があります。
-                  Choice列を使う場合は値を none/floor/ceil/nearest に揃えるか、1行テキスト列を推奨します。
-                </div>
-              </div>
-            ) : (
-              <div className="text-[#070]">必須列は揃っています。</div>
-            )}
-
-            {(() => {
-              const roundStartCol = findColumn(columnsQuery.data, 'RoundStart')
-              const roundEndCol = findColumn(columnsQuery.data, 'RoundEnd')
-
-              const roundStartInfo = roundStartCol
-                ? `${roundStartCol.type}${roundStartCol.choices ? ` / choices: ${roundStartCol.choices.join(', ')}` : ''}`
-                : '（未検出）'
-              const roundEndInfo = roundEndCol
-                ? `${roundEndCol.type}${roundEndCol.choices ? ` / choices: ${roundEndCol.choices.join(', ')}` : ''}`
-                : '（未検出）'
-
-              return (
-                <div className="mt-1.5 text-[12px] opacity-85">
-                  <div>RoundStart: {roundStartInfo}</div>
-                  <div>RoundEnd: {roundEndInfo}</div>
-                </div>
-              )
-            })()}
-          </div>
-        ) : null}
-      </Section>
-
       {ruleQuery.data ? (
         <WorkRuleForm
           key={ruleQuery.dataUpdatedAt}
@@ -292,7 +211,7 @@ export function WorkRuleSettings() {
           onSave={onSave}
           onReload={() => ruleQuery.refetch()}
           isSaving={saveMutation.isPending}
-          isReloading={ruleQuery.isFetching || columnsQuery.isFetching}
+          isReloading={ruleQuery.isFetching}
         />
       ) : null}
 

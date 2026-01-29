@@ -278,7 +278,7 @@ export function Attendance() {
     <main className="mx-auto w-full max-w-[960px] p-4">
       <h1>勤怠一覧</h1>
       <p className="mt-1 opacity-80">
-        対象: {year}年{month}月（SharePoint）
+        対象: {year}年{month}月
       </p>
 
       {createPunchMutation.isError && (

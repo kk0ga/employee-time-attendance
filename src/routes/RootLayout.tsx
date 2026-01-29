@@ -27,7 +27,7 @@ export function RootLayout() {
             打刻
           </Link>
           <Link to="/reports" activeProps={{ className: activeClassName }} className="hover:opacity-70">
-            勤務表出力
+            PDF出力
           </Link>
           <Link to="/settings/work-rule" activeProps={{ className: activeClassName }} className="hover:opacity-70">
             勤務ルール

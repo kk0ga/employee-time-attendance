@@ -218,7 +218,7 @@ export function Reports() {
 
   return (
     <main className="mx-auto w-full max-w-[960px] p-4">
-      <h1>勤務表PDF出力</h1>
+      <h1>PDF出力</h1>
 
       <Section title="対象月" className="mt-4">
         <label className="grid max-w-[240px] gap-1.5">

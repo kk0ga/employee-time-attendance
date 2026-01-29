@@ -10,10 +10,10 @@ import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { fetchMyWorkRule } from '../lib/workRuleRepo'
 import { calculateWorkedMinutes } from '../lib/workTime'
 import logoUrl from '../assets/company-logo.svg'
-import { Section } from '../components/ui/Section'
-import { Input } from '../components/ui/Input'
-import { Button } from '../components/ui/Button'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Section } from '@/components/ui/Section'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 function toYearMonthValue(params: { year: number; month: number }): string {
   return `${params.year}-${String(params.month).padStart(2, '0')}`

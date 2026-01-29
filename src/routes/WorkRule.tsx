@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { RoundingMode, WorkRule } from '../domain/workRule'
 import { fetchMyWorkRule, saveMyWorkRule } from '../lib/workRuleRepo'
-import { Button } from '../components/ui/Button'
-import { Section } from '../components/ui/Section'
-import { Input } from '../components/ui/Input'
-import { Select } from '../components/ui/Select'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Button } from '@/components/ui/button'
+import { Section } from '@/components/ui/Section'
+import { Input } from '@/components/ui/input'
+import { SelectNative as Select } from '@/components/ui/select-native'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 function clampInt(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min

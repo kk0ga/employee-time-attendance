@@ -6,9 +6,9 @@ import {
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getLoginScopes } from '../auth/msalConfig'
-import { Button } from '../components/ui/Button'
-import { Section } from '../components/ui/Section'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Button } from '@/components/ui/button'
+import { Section } from '@/components/ui/Section'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 export function Login() {
   const { instance } = useMsal()

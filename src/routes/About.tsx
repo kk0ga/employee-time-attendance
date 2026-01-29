@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Section } from '../components/ui/Section'
+import { Section } from '@/components/ui/Section'
 
 export function About() {
   return (

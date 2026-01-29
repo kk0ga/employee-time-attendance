@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { listLists, resolveSiteByUrl, searchSites, type SharePointList } from '../lib/graph/sharepointDiscovery'
-import { Section } from '../components/ui/Section'
-import { Input } from '../components/ui/Input'
-import { Button } from '../components/ui/Button'
-import { Table, Th, Td } from '../components/ui/Table'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Section } from '@/components/ui/Section'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Table, Th, Td } from '@/components/ui/table-compat'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 function normalizeUrl(input: string): string {
   const trimmed = input.trim()

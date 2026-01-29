@@ -3,10 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { weekdayJa, weekdayUtc } from '../lib/tokyoDate'
 import { createPunch, listMyPunchesForDate, type PunchType } from '../lib/graph/punches'
 import { GraphRequestError } from '../lib/graph/graphClient'
-import { Section } from '../components/ui/Section'
-import { Button } from '../components/ui/Button'
-import { TextArea } from '../components/ui/TextArea'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { Section } from '@/components/ui/Section'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
 
 function getTokyoNowParts(now: Date = new Date()): {
   date: string
@@ -161,10 +161,10 @@ export function Punch() {
 
           <label className="mt-4 grid gap-1.5 ">
             <span className="text-sm font-medium">備考</span>
-            <TextArea
+            <Textarea
               rows={3}
               value={note}
-              onChange={(event) => setNote(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setNote(event.target.value)}
               placeholder="遅刻・直行直帰などのメモ"
               className="resize-y"
             />

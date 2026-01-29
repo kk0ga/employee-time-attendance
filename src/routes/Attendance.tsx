@@ -13,12 +13,12 @@ import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { createPunch, type PunchType } from '../lib/graph/punches'
 import { fetchWorkCategories } from '../lib/workCategoryRepo'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
-import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
-import { Select } from '../components/ui/Select'
-import { Table, Td, Th } from '../components/ui/Table'
-import { Section } from '../components/ui/Section'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { SelectNative as Select } from '@/components/ui/select-native'
+import { Table, Td, Th } from '@/components/ui/table-compat'
+import { Section } from '@/components/ui/Section'
 
 function normalizeTime(value: string): string {
   const parts = value.split(':')

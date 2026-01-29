@@ -7,10 +7,10 @@ import { fetchHolidaysForMonth } from '../lib/googleCalendar/holidayCalendar'
 import { getTokyoYearMonth, weekdayJa } from '../lib/tokyoDate'
 import { fetchMyWorkRule } from '../lib/workRuleRepo'
 import { calculateWorkedMinutes } from '../lib/workTime'
-import { Section } from '../components/ui/Section'
-import { StatsCard } from '../components/ui/StatsCard'
-import { ErrorMessage } from '../components/ui/ErrorMessage'
-import { Button } from '../components/ui/Button'
+import { Section } from '@/components/ui/Section'
+import { StatsCard } from '@/components/ui/StatsCard'
+import { ErrorMessage } from '@/components/ui/ErrorMessage'
+import { Button } from '@/components/ui/button'
 
 function getTokyoYyyyMmDd(now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {

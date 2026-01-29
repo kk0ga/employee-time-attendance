@@ -1,7 +1,7 @@
 import { Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
-import { Button } from '../components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 export function RootLayout() {
   const isAuthenticated = useIsAuthenticated()

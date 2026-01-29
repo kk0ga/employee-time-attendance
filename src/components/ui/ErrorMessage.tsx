@@ -1,6 +1,8 @@
 import React from 'react'
 import { GraphRequestError } from '../../lib/graph/graphClient'
-import { Button } from './Button'
+import { Button } from './button'
+import { AlertCircle, RefreshCw } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface ErrorMessageProps {
   title?: string
@@ -29,24 +31,28 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   }, [error])
 
   return (
-    <div className={`mt-4 rounded-[12px] border border-[#f005] bg-[#f001] p-3 text-[#c00] ${className}`}>
-      {title && <h2 className="text-[14px] font-bold">{title}</h2>}
-      {(message || children) && (
-        <div className="mt-1 text-[13px] leading-relaxed">
-          {message || children}
-        </div>
-      )}
-      {detail && <p className="mt-1 text-[12px] opacity-90">{detail}</p>}
-      {onRetry && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onRetry}
-          className="mt-2 border-[#c006] text-[#c00] hover:bg-[#c001]"
-        >
-          再試行
-        </Button>
-      )}
-    </div>
+    <Alert variant="destructive" className={className}>
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>{title || 'エラーが発生しました'}</AlertTitle>
+      <AlertDescription className="mt-2">
+        {(message || children) && (
+          <div className="text-[13px] leading-relaxed">
+            {message || children}
+          </div>
+        )}
+        {detail && <p className="mt-1 text-[12px] opacity-90">{detail}</p>}
+        {onRetry && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRetry}
+            className="mt-3 h-8 border border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <RefreshCw className="mr-2 h-3 w-3" />
+            再試行
+          </Button>
+        )}
+      </AlertDescription>
+    </Alert>
   )
 }

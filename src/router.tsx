@@ -5,7 +5,6 @@ import {
   createRouter,
   redirect,
 } from '@tanstack/react-router'
-import App from './App'
 import { Attendance } from './routes/Attendance'
 import { About } from './routes/About'
 import { Dashboard } from './routes/Dashboard'
@@ -36,7 +35,6 @@ function requireAuth() {
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: App,
   beforeLoad: () => {
     requireAuth()
     throw redirect({

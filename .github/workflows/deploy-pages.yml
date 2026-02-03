@@ -18,6 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +33,17 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: 'true'
+          VITE_ENTRA_CLIENT_ID: ${{ vars.VITE_ENTRA_CLIENT_ID }}
+          VITE_ENTRA_TENANT: ${{ vars.VITE_ENTRA_TENANT }}
+          VITE_ENTRA_SCOPES: ${{ vars.VITE_ENTRA_SCOPES }}
+          VITE_GRAPH_SCOPES: ${{ vars.VITE_GRAPH_SCOPES }}
+          VITE_SP_SITE_ID: ${{ vars.VITE_SP_SITE_ID }}
+          VITE_SP_PUNCH_LIST_ID: ${{ vars.VITE_SP_PUNCH_LIST_ID }}
+          VITE_SP_ATTENDANCE_LIST_ID: ${{ vars.VITE_SP_ATTENDANCE_LIST_ID }}
+          VITE_SP_WORK_RULE_LIST_ID: ${{ vars.VITE_SP_WORK_RULE_LIST_ID }}
+          VITE_SP_WORK_CATEGORY_LIST_ID: ${{ vars.VITE_SP_WORK_CATEGORY_LIST_ID }}
+          VITE_GCAL_API_KEY: ${{ secrets.VITE_GCAL_API_KEY }}
+          VITE_GCAL_HOLIDAY_CALENDAR_ID: ${{ vars.VITE_GCAL_HOLIDAY_CALENDAR_ID }}
       - name: SPA 404 fallback
         run: cp dist/index.html dist/404.html
       - name: Upload artifact

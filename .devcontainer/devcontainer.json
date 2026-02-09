@@ -16,11 +16,7 @@
 				"github.vscode-pull-request-github",
 				"github.vscode-github-actions",
 				"github.copilot"
-			],
-			"settings": {
-				"chat.mcp.gallery.enabled": true,
-				"chat.mcp.autostart": "newAndOutdated"
-			}
+			]
 		}
 	},
 

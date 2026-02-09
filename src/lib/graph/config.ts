@@ -1,8 +1,4 @@
-function requiredEnv(name: string): string {
-  const value = import.meta.env[name] as string | undefined
-  if (!value) throw new Error(`Missing env: ${name}`)
-  return value
-}
+import { requiredEnv } from '../env'
 
 export function getSharePointSiteId(): string {
   return requiredEnv('VITE_SP_SITE_ID')
@@ -31,3 +27,4 @@ export function getGraphScopes(): string[] {
     .map((s) => s.trim())
     .filter(Boolean)
 }
+

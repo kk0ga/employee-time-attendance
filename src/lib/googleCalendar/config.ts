@@ -1,8 +1,4 @@
-function requiredEnv(name: string): string {
-  const value = import.meta.env[name] as string | undefined
-  if (!value) throw new Error(`Missing env: ${name}`)
-  return value
-}
+import { requiredEnv } from '../env.ts'
 
 export function getGoogleCalendarApiKey(): string {
   return requiredEnv('VITE_GCAL_API_KEY')
@@ -11,3 +7,4 @@ export function getGoogleCalendarApiKey(): string {
 export function getGoogleHolidayCalendarId(): string {
   return requiredEnv('VITE_GCAL_HOLIDAY_CALENDAR_ID')
 }
+

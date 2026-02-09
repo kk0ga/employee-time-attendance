@@ -1,10 +1,6 @@
 import type { Configuration } from '@azure/msal-browser'
 
-function requiredEnv(name: string): string {
-  const value = import.meta.env[name] as string | undefined
-  if (!value) throw new Error(`Missing env: ${name}`)
-  return value
-}
+import { requiredEnv } from '../lib/env'
 
 function optionalEnv(name: string, fallback: string): string {
   return (import.meta.env[name] as string | undefined) ?? fallback
